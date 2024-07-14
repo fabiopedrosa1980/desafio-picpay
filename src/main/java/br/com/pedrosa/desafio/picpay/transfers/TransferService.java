@@ -8,6 +8,7 @@ import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TransferService {
@@ -24,24 +25,17 @@ public class TransferService {
         this.notificationService = notificationService;
     }
 
+    @Transactional
     public void sendTransfer(TransferDTO transactionDTO) throws TransferException, UserNotFoundException, BalanceException {
         checkBalance(transactionDTO);
-
         var payer = getPayer(transactionDTO);
-
         checkValidTransfer(payer);
-
         var payee = getPayee(transactionDTO);
-
         checkAuthorization();
-
         userService.updateBalance(payer.id(),transactionDTO.value(), payer.userType());
         userService.updateBalance(payee.id(),transactionDTO.value(), payee.userType());
-
         transferRepository.save(transactionDTO.toEntity(transactionDTO));
-
         notificationService.sendMessage(payee.email());
-
     }
 
     private void checkAuthorization() {
