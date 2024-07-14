@@ -25,6 +25,7 @@ Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se n
 ## Endpoint de usuarios
 ```
 POST /users
+userType [COMMON, SELLER]
 Content-Type: application/json
 {
     "name": "Joao da Silva",
@@ -33,7 +34,6 @@ Content-Type: application/json
     "password": "12345",
     "userType": "COMMON",
     "balance": 1000.00
-
 }
 ```
 ## Endpoint de transferência

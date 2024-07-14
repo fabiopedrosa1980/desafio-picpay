@@ -1,6 +1,6 @@
 package br.com.pedrosa.desafio.picpay.transfers;
 
-import br.com.pedrosa.desafio.picpay.users.User;
+import br.com.pedrosa.desafio.picpay.users.UserResponse;
 
-public record TransferResponse(User payer, User payee) {
+public record TransferResponse(UserResponse payer, UserResponse payee) {
 }

@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TransferService {
+    public static final String TRANSFERENCIA_REALIZADA_COM_SUCESSO = "Transferencia realizada com sucesso";
+    public static final String TRANSFERENCIA_RECEBIDA_COM_SUCESSO = "Transferencia recebida com sucesso";
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -33,8 +35,9 @@ public class TransferService {
         payer = userService.updateBalance(payer, transferRequest.value());
         payee = userService.updateBalance(payee, transferRequest.value());
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        notificationService.sendMessage(payee.email());
-        return new TransferResponse(payer,payee);
+        notificationService.sendMessage(payer.email(), TRANSFERENCIA_REALIZADA_COM_SUCESSO);
+        notificationService.sendMessage(payee.email(), TRANSFERENCIA_RECEBIDA_COM_SUCESSO);
+        return new TransferResponse(payer.toResponse(payer),payee.toResponse(payee));
     }
 
     private void checkAuthorization() {

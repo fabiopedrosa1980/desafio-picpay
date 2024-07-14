@@ -16,13 +16,13 @@ public record UserRequest(
         @NotNull(message = "Valor da transacao deve ser informado")  BigDecimal balance
 ) {
 
-    public User toEntity(UserRequest userDTO){
+    public User toEntity(UserRequest userRequest){
         return new User(null,
-                userDTO.name,
-                userDTO.document,
-                userDTO.email,
-                userDTO.password,
-                userDTO.userType.getValue(),
-                userDTO.balance);
+                userRequest.name,
+                userRequest.document,
+                userRequest.email,
+                userRequest.password,
+                userRequest.userType.getValue(),
+                userRequest.balance);
     }
 }

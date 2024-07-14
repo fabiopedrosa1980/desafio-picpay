@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     @Async
-    public void sendMessage(String email){
-        System.out.println("Email enviado para " + email);
+    public void sendMessage(String email, String message){
+        System.out.println("Email enviado para " + email + " " + message);
     }
 }

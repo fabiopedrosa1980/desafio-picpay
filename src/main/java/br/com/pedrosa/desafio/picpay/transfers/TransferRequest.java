@@ -10,8 +10,12 @@ public record TransferRequest(
         @NotNull(message = "Usuario da transacao deve ser informado") Long payer,
         @NotNull(message = "Lojista da transacao deve ser informado") Long payee) {
 
-    public Transfer toEntity(TransferRequest transactionDTO){
-        return new Transfer(null,value,payer,payee);
+    public Transfer toEntity(TransferRequest transferRequest){
+        return new Transfer(
+                null,
+                transferRequest.value,
+                transferRequest.payer,
+                transferRequest.payee);
     }
 
 }
