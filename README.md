@@ -24,6 +24,8 @@ Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se n
 
 ## Endpoint de usuarios
 ```
+GET/ users
+
 POST /users
 userType [COMMON, SELLER]
 Content-Type: application/json
@@ -48,5 +50,8 @@ Content-Type: application/json
   "payee": 2
 }
 ```
+## Acessando os Modulos
+- http://localhost:8080/actuator/modulith 
+
 
 

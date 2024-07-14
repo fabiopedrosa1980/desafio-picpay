@@ -4,9 +4,10 @@ import br.com.pedrosa.desafio.picpay.authorization.AuthorizationService;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
-import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
+import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +19,13 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
-    private final NotificationService notificationService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public TransferService(TransferRepository transactionRepository, UserService userService, AuthorizationService authorizationService, NotificationService notificationService) {
+    public TransferService(TransferRepository transactionRepository, UserService userService, AuthorizationService authorizationService, ApplicationEventPublisher applicationEventPublisher) {
         this.transferRepository = transactionRepository;
         this.userService = userService;
         this.authorizationService = authorizationService;
-        this.notificationService = notificationService;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Transactional
@@ -36,9 +37,13 @@ public class TransferService {
         payer = userService.updateBalance(payer, transferRequest.value());
         payee = userService.updateBalance(payee, transferRequest.value());
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        notificationService.sendMessage(payer.email(), TRANSFERENCIA_REALIZADA_COM_SUCESSO);
-        notificationService.sendMessage(payee.email(), TRANSFERENCIA_RECEBIDA_COM_SUCESSO);
-        return new TransferResponse(payer.toResponse(payer),payee.toResponse(payee));
+        applicationEventPublisher.publishEvent(new NotificationEvent(payer.email(),TRANSFERENCIA_REALIZADA_COM_SUCESSO));
+        applicationEventPublisher.publishEvent(new NotificationEvent(payee.email(),TRANSFERENCIA_RECEBIDA_COM_SUCESSO));
+        return new TransferResponse(
+                TRANSFERENCIA_REALIZADA_COM_SUCESSO,
+                payer.toResponse(payer),
+                payee.toResponse(payee)
+        );
     }
 
     private void checkAuthorization() {

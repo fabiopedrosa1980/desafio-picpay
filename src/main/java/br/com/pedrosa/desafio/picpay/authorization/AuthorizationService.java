@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.authorization;
 
-import br.com.pedrosa.desafio.picpay.exception.AuthorizationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
@@ -25,7 +24,7 @@ public class AuthorizationService {
             backoff = @Backoff(delay = 100))
     public boolean authorize() {
         try {
-            var response = restTemplate.getForEntity(urlAuth, AuthorizationDTO.class);
+            var response = restTemplate.getForEntity(urlAuth, AuthorizationResponse.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 throw new AuthorizationException("Transferencia nao autorizada");
             }
@@ -35,4 +34,5 @@ public class AuthorizationService {
             throw new AuthorizationException("Erro ao efetuar autorizacao");
         }
     }
+
 }

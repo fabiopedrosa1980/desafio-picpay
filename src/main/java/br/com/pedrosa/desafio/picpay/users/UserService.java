@@ -6,6 +6,8 @@ import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -20,7 +22,7 @@ public class UserService {
     }
 
     public UserResponse create(UserRequest userRequest) {
-        var user =  this.userRepository.save(userRequest.toEntity(userRequest));
+        var user = this.userRepository.save(userRequest.toEntity(userRequest));
         return user.toResponse(user);
     }
 
@@ -62,5 +64,11 @@ public class UserService {
     private BigDecimal buildBalanceFromUser(BigDecimal actualBalance, BigDecimal value, int type) {
         return type == UserTypeEnum.COMMON.getValue() ?
                 actualBalance.subtract(value) : actualBalance.add(value);
+    }
+
+    public List<UserResponse> listAll() {
+        return StreamSupport.stream(this.userRepository.findAll().spliterator(), false)
+                .map(user -> user.toResponse(user))
+                .toList();
     }
 }

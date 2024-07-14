@@ -18,4 +18,5 @@ public record User(@Id Long id, String name, String document, String email, Stri
                 user.balance
         );
     }
+
 }

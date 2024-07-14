@@ -1,5 +1,6 @@
 package br.com.pedrosa.desafio.picpay.exception;
 
+import br.com.pedrosa.desafio.picpay.authorization.AuthorizationException;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

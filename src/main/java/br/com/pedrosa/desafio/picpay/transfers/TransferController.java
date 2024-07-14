@@ -19,7 +19,7 @@ public class TransferController {
     }
 
     @PostMapping
-    public TransferResponse sendTransfer(@Valid @RequestBody TransferRequest transferRequest) throws TransferException,UserNotFoundException, BalanceException {
+    public TransferResponse sendTransfer(@Valid @RequestBody TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
         return this.transactionService.sendTransfer(transferRequest);
     }
 }
