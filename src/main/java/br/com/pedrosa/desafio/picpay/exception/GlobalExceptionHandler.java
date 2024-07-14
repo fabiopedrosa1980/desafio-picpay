@@ -36,12 +36,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-
     @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<ErrorDetails> authorizationException(AuthorizationException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @ExceptionHandler(TransferException.class)
     public ResponseEntity<ErrorDetails> transferException(TransferException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
@@ -69,6 +69,5 @@ public class GlobalExceptionHandler {
     private Map<String, List<FieldErrorResponse>> error(List<FieldErrorResponse> errors){
         return Collections.singletonMap("errors", errors);
     }
-
 
 }
