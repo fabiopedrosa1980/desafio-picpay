@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 
 @Service
 public class UserService {
+    public static final String USUARIO_NAO_ENCONTRADO = "Usuario nao encontrado ";
+    public static final String USUARIO_COM_SALDO_INSUFICIENTE = "Usuario com saldo insuficiente";
+    public static final String LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA = "Lojista nao pode fazer transferencia";
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -18,27 +21,25 @@ public class UserService {
 
     public UserResponse create(UserRequest userRequest) {
         var user =  this.userRepository.save(userRequest.toEntity(userRequest));
-        return new UserResponse(
-                user.id(),
-                user.name(),
-                user.document(),
-                user.email(),
-                UserTypeEnum.findById(user.userType()),
-                user.balance());
+        return user.toResponse(user);
     }
 
     public User findById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario nao encontrado " + id));
+                .orElseThrow(() -> new UserNotFoundException(USUARIO_NAO_ENCONTRADO + id));
     }
 
     public void validUser(User payer, BigDecimal value) throws BalanceException, TransferException {
         if (!hasBalance(payer, value)) {
-            throw new BalanceException("Usuario com saldo insuficiente");
+            throw new BalanceException(USUARIO_COM_SALDO_INSUFICIENTE);
         }
-        if (payer.userType() == UserTypeEnum.SELLER.getValue()) {
-            throw new TransferException("Lojista nao pode fazer transferencia");
+        if (isInvalidUserType(payer)) {
+            throw new TransferException(LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA);
         }
+    }
+
+    private boolean isInvalidUserType(User payer) {
+        return payer.userType() == UserTypeEnum.SELLER.getValue();
     }
 
     private boolean hasBalance(User payer, BigDecimal value) {

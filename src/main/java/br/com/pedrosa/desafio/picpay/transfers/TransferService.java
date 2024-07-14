@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransferService {
     public static final String TRANSFERENCIA_REALIZADA_COM_SUCESSO = "Transferencia realizada com sucesso";
     public static final String TRANSFERENCIA_RECEBIDA_COM_SUCESSO = "Transferencia recebida com sucesso";
+    public static final String TRANSFERENCIA_NAO_AUTORIZADA = "Transferencia nao autorizada";
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -42,7 +43,7 @@ public class TransferService {
 
     private void checkAuthorization() {
         if(!authorizationService.authorize()){
-            throw new TransferException("Transferencia nao autorizada");
+            throw new TransferException(TRANSFERENCIA_NAO_AUTORIZADA);
         }
     }
 

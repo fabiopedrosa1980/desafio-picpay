@@ -1,5 +1,7 @@
 package br.com.pedrosa.desafio.picpay.users;
 
+import br.com.pedrosa.desafio.picpay.exception.UserTypeException;
+
 import java.util.Arrays;
 
 public enum UserTypeEnum {
@@ -25,7 +27,7 @@ public enum UserTypeEnum {
     public static String findById(int id){
         return Arrays.stream(UserTypeEnum.values())
                 .filter(type -> type.getValue() == id)
-                .findFirst().map(desc -> desc.getName())
-                .orElseThrow(() -> new RuntimeException("Enum nao econtrado"));
+                .findFirst().map(UserTypeEnum::getName)
+                .orElseThrow(() -> new UserTypeException("Tipo de usuario informado invalidp"));
     }
 }
