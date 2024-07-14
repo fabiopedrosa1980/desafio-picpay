@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    public static final String USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO = "Usuario ja cadastrado como esse email ou documento";
+
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -54,9 +56,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(value = {DbActionExecutionException.class})
+    @ExceptionHandler(value = DbActionExecutionException.class)
     public ResponseEntity<ErrorDetails> dataIntegrityViolationException(DbActionExecutionException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), "Usuario ja cadastrado como esse email ou documento", request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO, request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
