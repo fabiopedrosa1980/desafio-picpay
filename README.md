@@ -26,6 +26,7 @@ Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se n
 ```
 POST /users
 Content-Type: application/json
+{
     "name": "Joao da Silva",
     "document": "22407336339",
     "email": "joao@gmail.com",
@@ -36,6 +37,7 @@ Content-Type: application/json
 }
 ```
 ## Endpoint de transferência
+Você pode implementar o que achar conveniente, porém vamos nos atentar somente ao fluxo de transferência entre dois usuários. A implementação deve seguir o contrato abaixo.
 ```
 POST /transfer
 Content-Type: application/json
@@ -47,4 +49,4 @@ Content-Type: application/json
 }
 ```
 
-Você pode implementar o que achar conveniente, porém vamos nos atentar somente ao fluxo de transferência entre dois usuários. A implementação deve seguir o contrato abaixo.
+
