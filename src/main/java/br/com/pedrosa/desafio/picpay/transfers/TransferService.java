@@ -7,15 +7,19 @@ import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TransferService {
+    private static final Logger logger = LoggerFactory.getLogger(TransferService.class);
     public static final String TRANSFERENCIA_REALIZADA_COM_SUCESSO = "Transferencia realizada com sucesso";
     public static final String TRANSFERENCIA_RECEBIDA_COM_SUCESSO = "Transferencia recebida com sucesso";
     public static final String TRANSFERENCIA_NAO_AUTORIZADA = "Transferencia nao autorizada";
+
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -30,15 +34,22 @@ public class TransferService {
 
     @Transactional
     public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
+        logger.info("Inciando a transferencia");
         var payer = getPayer(transferRequest);
         var payee = getPayee(transferRequest);
-        userService.validUser(payer,transferRequest.value());
+        userService.validUser(payer, transferRequest.value());
         checkAuthorization();
         payer = userService.updateBalance(payer, transferRequest.value());
         payee = userService.updateBalance(payee, transferRequest.value());
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        applicationEventPublisher.publishEvent(new NotificationEvent(payer.email(),TRANSFERENCIA_REALIZADA_COM_SUCESSO));
-        applicationEventPublisher.publishEvent(new NotificationEvent(payee.email(),TRANSFERENCIA_RECEBIDA_COM_SUCESSO));
+        applicationEventPublisher.publishEvent(new NotificationEvent(payer.email(), TRANSFERENCIA_REALIZADA_COM_SUCESSO));
+        applicationEventPublisher.publishEvent(new NotificationEvent(payee.email(), TRANSFERENCIA_RECEBIDA_COM_SUCESSO));
+        var transferResponse = getTransferResponse(payer, payee);
+        logger.info("Finalizando a transferencia");
+        return transferResponse;
+    }
+
+    private TransferResponse getTransferResponse(User payer, User payee) {
         return new TransferResponse(
                 TRANSFERENCIA_REALIZADA_COM_SUCESSO,
                 payer.toResponse(payer),
@@ -47,7 +58,7 @@ public class TransferService {
     }
 
     private void checkAuthorization() {
-        if(!authorizationService.authorize()){
+        if (!authorizationService.authorize()) {
             throw new TransferException(TRANSFERENCIA_NAO_AUTORIZADA);
         }
     }

@@ -7,5 +7,5 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 
 @Table("transfers")
-public record Transfer(@Id Long id, BigDecimal amount, Long payer, Long payee ) {
+public record Transfer(@Id Long id, BigDecimal amount, Long payer, Long payee) {
 }

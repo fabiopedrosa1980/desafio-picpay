@@ -3,6 +3,8 @@ package br.com.pedrosa.desafio.picpay.users;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,9 +14,11 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     public static final String USUARIO_NAO_ENCONTRADO = "Usuario nao encontrado ";
     public static final String USUARIO_COM_SALDO_INSUFICIENTE = "Usuario com saldo insuficiente";
     public static final String LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA = "Lojista nao pode fazer transferencia";
+
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -22,6 +26,7 @@ public class UserService {
     }
 
     public UserResponse create(UserRequest userRequest) {
+        logger.info("Criando o usuario");
         var user = this.userRepository.save(userRequest.toEntity(userRequest));
         return user.toResponse(user);
     }
@@ -32,10 +37,13 @@ public class UserService {
     }
 
     public void validUser(User payer, BigDecimal value) throws BalanceException, TransferException {
+        logger.info("Validando se o usuario pode fazer a transferencia");
         if (!hasBalance(payer, value)) {
+            logger.error(USUARIO_COM_SALDO_INSUFICIENTE);
             throw new BalanceException(USUARIO_COM_SALDO_INSUFICIENTE);
         }
         if (isInvalidUserType(payer)) {
+            logger.error(LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA);
             throw new TransferException(LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA);
         }
     }
@@ -49,8 +57,14 @@ public class UserService {
     }
 
     public User updateBalance(User user, BigDecimal value) {
+        logger.info("Atualizando o saldo do {}", UserTypeEnum.findById(user.userType()));
         var balance = buildBalanceFromUser(user.balance(), value, user.userType());
-        var userWithNewBalance = new User(
+        var userWithNewBalance = getUserWithNewBalance(user, balance);
+        return this.userRepository.save(userWithNewBalance);
+    }
+
+    private User getUserWithNewBalance(User user, BigDecimal balance) {
+        return new User(
                 user.id(),
                 user.name(),
                 user.document(),
@@ -58,7 +72,6 @@ public class UserService {
                 user.password(),
                 user.userType(),
                 balance);
-        return this.userRepository.save(userWithNewBalance);
     }
 
     private BigDecimal buildBalanceFromUser(BigDecimal actualBalance, BigDecimal value, int type) {
