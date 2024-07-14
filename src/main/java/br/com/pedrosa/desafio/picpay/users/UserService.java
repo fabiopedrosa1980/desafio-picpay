@@ -1,21 +1,30 @@
 package br.com.pedrosa.desafio.picpay.users;
 
+import br.com.pedrosa.desafio.picpay.exception.BalanceException;
+import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private static final int USER_TYPE_USER = 1;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public User create(UserDTO userDTO) {
-        return this.userRepository.save(userDTO.toEntity(userDTO));
+    public UserResponse create(UserRequest userRequest) {
+        var user =  this.userRepository.save(userRequest.toEntity(userRequest));
+        return new UserResponse(
+                user.id(),
+                user.name(),
+                user.document(),
+                user.email(),
+                UserTypeEnum.findById(user.userType()),
+                user.balance());
     }
 
     public User findById(Long id) throws UserNotFoundException {
@@ -23,14 +32,21 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario nao encontrado " + id));
     }
 
-    public boolean hasBalance(Long idUser, BigDecimal value) throws UserNotFoundException {
-        var userBalance = findById(idUser);
-        return userBalance.balance().compareTo(value) >= 0;
+    public void validUser(User payer, BigDecimal value) throws BalanceException, TransferException {
+        if (!hasBalance(payer, value)) {
+            throw new BalanceException("Usuario com saldo insuficiente");
+        }
+        if (payer.userType() == UserTypeEnum.SELLER.getValue()) {
+            throw new TransferException("Lojista nao pode fazer transferencia");
+        }
     }
 
-    public void updateBalance(Long id, BigDecimal value, int type) throws UserNotFoundException {
-        var user = findById(id);
-        var balance = buildBalanceFromUser(user.balance(), value, type);
+    private boolean hasBalance(User payer, BigDecimal value) {
+        return payer.balance().compareTo(value) >= 0;
+    }
+
+    public User updateBalance(User user, BigDecimal value) {
+        var balance = buildBalanceFromUser(user.balance(), value, user.userType());
         var userWithNewBalance = new User(
                 user.id(),
                 user.name(),
@@ -39,11 +55,11 @@ public class UserService {
                 user.password(),
                 user.userType(),
                 balance);
-        this.userRepository.save(userWithNewBalance);
+        return this.userRepository.save(userWithNewBalance);
     }
 
-    private static BigDecimal buildBalanceFromUser(BigDecimal actualBalance, BigDecimal value, int type) {
-        return type == USER_TYPE_USER ?
+    private BigDecimal buildBalanceFromUser(BigDecimal actualBalance, BigDecimal value, int type) {
+        return type == UserTypeEnum.COMMON.getValue() ?
                 actualBalance.subtract(value) : actualBalance.add(value);
     }
 }

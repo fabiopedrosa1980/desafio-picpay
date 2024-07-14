@@ -7,22 +7,22 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-public record UserDTO(
+public record UserRequest(
         @NotBlank(message = "Nome deve ser informado") String name,
         @Size(min = 11, max = 14, message = "Documento invalido") String document,
         @Email(message = "Email invalido") String email,
         @NotBlank(message = "Senha deve ser informada") String password,
-        @NotNull(message = "Tipo de usuario deve ser informado") int userType,
+        @NotNull(message = "Tipo de usuario deve ser informado") UserTypeEnum userType,
         @NotNull(message = "Valor da transacao deve ser informado")  BigDecimal balance
 ) {
 
-    public User toEntity(UserDTO userDTO){
+    public User toEntity(UserRequest userDTO){
         return new User(null,
                 userDTO.name,
                 userDTO.document,
                 userDTO.email,
                 userDTO.password,
-                userDTO.userType,
+                userDTO.userType.getValue(),
                 userDTO.balance);
     }
 }

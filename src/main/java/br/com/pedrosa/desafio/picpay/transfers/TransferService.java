@@ -16,7 +16,6 @@ public class TransferService {
     private final UserService userService;
     private final AuthorizationService authorizationService;
     private final NotificationService notificationService;
-    private static final int USER_TYPE_SELLER = 2;
 
     public TransferService(TransferRepository transactionRepository, UserService userService, AuthorizationService authorizationService, NotificationService notificationService) {
         this.transferRepository = transactionRepository;
@@ -26,16 +25,16 @@ public class TransferService {
     }
 
     @Transactional
-    public void sendTransfer(TransferDTO transactionDTO) throws TransferException, UserNotFoundException, BalanceException {
-        checkBalance(transactionDTO);
-        var payer = getPayer(transactionDTO);
-        checkValidTransfer(payer);
-        var payee = getPayee(transactionDTO);
+    public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
+        var payer = getPayer(transferRequest);
+        var payee = getPayee(transferRequest);
+        userService.validUser(payer,transferRequest.value());
         checkAuthorization();
-        userService.updateBalance(payer.id(),transactionDTO.value(), payer.userType());
-        userService.updateBalance(payee.id(),transactionDTO.value(), payee.userType());
-        transferRepository.save(transactionDTO.toEntity(transactionDTO));
+        payer = userService.updateBalance(payer, transferRequest.value());
+        payee = userService.updateBalance(payee, transferRequest.value());
+        transferRepository.save(transferRequest.toEntity(transferRequest));
         notificationService.sendMessage(payee.email());
+        return new TransferResponse(payer,payee);
     }
 
     private void checkAuthorization() {
@@ -44,23 +43,11 @@ public class TransferService {
         }
     }
 
-    private static void checkValidTransfer(User payer) {
-        if(payer.userType() == USER_TYPE_SELLER){
-            throw new TransferException("Lojista nao pode fazer transferencia");
-        }
-    }
-
-    private void checkBalance(TransferDTO transactionDTO) throws BalanceException, UserNotFoundException {
-        if(!userService.hasBalance(transactionDTO.payer(),transactionDTO.value())){
-            throw new BalanceException("Usuario com saldo insuficiente");
-        }
-    }
-
-    private User getPayee(TransferDTO transactionDTO) throws UserNotFoundException {
+    private User getPayee(TransferRequest transactionDTO) throws UserNotFoundException {
         return userService.findById(transactionDTO.payee());
     }
 
-    private User getPayer(TransferDTO transactionDTO) throws UserNotFoundException {
+    private User getPayer(TransferRequest transactionDTO) throws UserNotFoundException {
         return userService.findById(transactionDTO.payer());
     }
 

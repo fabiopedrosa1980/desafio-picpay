@@ -20,7 +20,5 @@ create table if not exists transfers(
     payee int references users(id)
 );
 
-insert into user_type (name) values('Usuario');
-insert into user_type (name) values('Lojista');
 
 

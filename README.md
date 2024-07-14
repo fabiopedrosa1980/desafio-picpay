@@ -22,6 +22,19 @@ Este serviço deve ser RESTFul.
 
 Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se não conseguir atender a todos os requisitos. Durante a entrevista vamos conversar sobre o que você conseguiu fazer e o que não conseguiu.
 
+## Endpoint de usuarios
+```
+POST /users
+Content-Type: application/json
+    "name": "Joao da Silva",
+    "document": "22407336339",
+    "email": "joao@gmail.com",
+    "password": "12345",
+    "userType": "COMMON",
+    "balance": 1000.00
+
+}
+```
 ## Endpoint de transferência
 ```
 POST /transfer
