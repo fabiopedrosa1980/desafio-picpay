@@ -14,7 +14,6 @@ import java.util.Objects;
 @Service
 public class AuthorizationService {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationService.class);
-
     private final RestTemplate restTemplate;
     private final String urlAuth;
 
@@ -24,8 +23,8 @@ public class AuthorizationService {
     }
 
     @Retryable(retryFor = AuthorizationException.class,
-            maxAttempts = 2,
-            backoff = @Backoff(delay = 100))
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 300))
     public boolean authorize() {
         try {
             logger.info("Iniciando a autorizacao da transacao");

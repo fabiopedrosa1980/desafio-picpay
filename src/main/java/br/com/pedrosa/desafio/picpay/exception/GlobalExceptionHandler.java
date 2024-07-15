@@ -48,5 +48,4 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, error);
     }
 
-
 }
