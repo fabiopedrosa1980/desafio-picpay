@@ -8,4 +8,8 @@ import java.math.BigDecimal;
 
 @Table("transfers")
 public record Transfer(@Id Long id, BigDecimal amount, Long payer, Long payee) {
+
+    public Transfer(BigDecimal amount, Long payer, Long payee) {
+        this(null, amount, payer, payee);
+    }
 }

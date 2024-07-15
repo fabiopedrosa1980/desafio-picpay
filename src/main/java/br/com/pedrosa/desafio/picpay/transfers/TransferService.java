@@ -16,59 +16,67 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TransferService {
     private static final Logger logger = LoggerFactory.getLogger(TransferService.class);
-    public static final String TRANSFERENCIA_REALIZADA_COM_SUCESSO = "Transferencia realizada com sucesso";
-    public static final String TRANSFERENCIA_RECEBIDA_COM_SUCESSO = "Transferencia recebida com sucesso";
-    public static final String TRANSFERENCIA_NAO_AUTORIZADA = "Transferencia nao autorizada";
+    private static final String SUCCESSFUL_TRANSFER = "Transferencia realizada com sucesso";
+    private static final String RECEIVED_TRANSFER = "Transferencia recebida com sucesso";
+    private static final String UNAUTHORIZED_TRANSFER = "Transferencia nao autorizada";
 
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public TransferService(TransferRepository transactionRepository, UserService userService, AuthorizationService authorizationService, ApplicationEventPublisher applicationEventPublisher) {
-        this.transferRepository = transactionRepository;
+    public TransferService(TransferRepository transferRepository, UserService userService, AuthorizationService authorizationService, ApplicationEventPublisher eventPublisher) {
+        this.transferRepository = transferRepository;
         this.userService = userService;
         this.authorizationService = authorizationService;
-        this.applicationEventPublisher = applicationEventPublisher;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
-        logger.info("Inciando a transferencia");
-        var payer = getPayer(transferRequest);
-        var payee = getPayee(transferRequest);
-        userService.validUser(payer, transferRequest.value());
-        checkAuthorization();
+        logger.info("Iniciando a transferencia");
+
+        var payer = getUser(transferRequest.payer());
+        var payee = getUser(transferRequest.payee());
+
+        userService.validateUser(payer, transferRequest.value());
+        authorizeTransfer();
+
         payer = userService.updateBalance(payer, transferRequest.value());
         payee = userService.updateBalance(payee, transferRequest.value());
+
+        return processTransfer(transferRequest, payer, payee);
+    }
+
+    private TransferResponse processTransfer(TransferRequest transferRequest, User payer, User payee) {
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        applicationEventPublisher.publishEvent(new NotificationEvent(payer.email(), TRANSFERENCIA_REALIZADA_COM_SUCESSO));
-        applicationEventPublisher.publishEvent(new NotificationEvent(payee.email(), TRANSFERENCIA_RECEBIDA_COM_SUCESSO));
-        var transferResponse = getTransferResponse(payer, payee);
-        logger.info("Finalizando a transferencia");
+        sendTransferNotifications(payer, payee);
+
+        TransferResponse transferResponse = createTransferResponse(payer, payee);
+        logger.info("Transferencia finalizada");
         return transferResponse;
     }
 
-    private TransferResponse getTransferResponse(User payer, User payee) {
+    private void sendTransferNotifications(User payer, User payee) {
+        eventPublisher.publishEvent(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
+        eventPublisher.publishEvent(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
+    }
+
+    private TransferResponse createTransferResponse(User payer, User payee) {
         return new TransferResponse(
-                TRANSFERENCIA_REALIZADA_COM_SUCESSO,
-                payer.toResponse(payer),
-                payee.toResponse(payee)
+                SUCCESSFUL_TRANSFER,
+                User.toResponse(payer),
+                User.toResponse(payee)
         );
     }
 
-    private void checkAuthorization() {
+    private void authorizeTransfer() {
         if (!authorizationService.authorize()) {
-            throw new TransferException(TRANSFERENCIA_NAO_AUTORIZADA);
+            throw new TransferException(UNAUTHORIZED_TRANSFER);
         }
     }
 
-    private User getPayee(TransferRequest transactionDTO) throws UserNotFoundException {
-        return userService.findById(transactionDTO.payee());
+    private User getUser(Long userId) throws UserNotFoundException {
+        return userService.findById(userId);
     }
-
-    private User getPayer(TransferRequest transactionDTO) throws UserNotFoundException {
-        return userService.findById(transactionDTO.payer());
-    }
-
 }

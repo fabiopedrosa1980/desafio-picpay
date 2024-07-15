@@ -12,7 +12,6 @@ public record TransferRequest(
 
     public Transfer toEntity(TransferRequest transferRequest){
         return new Transfer(
-                null,
                 transferRequest.value,
                 transferRequest.payer,
                 transferRequest.payee);

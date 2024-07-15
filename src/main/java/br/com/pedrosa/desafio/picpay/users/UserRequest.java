@@ -13,11 +13,11 @@ public record UserRequest(
         @Email(message = "Email invalido") String email,
         @NotBlank(message = "Senha deve ser informada") String password,
         @NotNull(message = "Tipo de usuario deve ser informado") UserTypeEnum userType,
-        @NotNull(message = "Valor da transacao deve ser informado")  BigDecimal balance
+        @NotNull(message = "Valor da transacao deve ser informado") BigDecimal balance
 ) {
 
-    public User toEntity(UserRequest userRequest){
-        return new User(null,
+    public User toEntity(UserRequest userRequest) {
+        return new User(
                 userRequest.name,
                 userRequest.document,
                 userRequest.email,

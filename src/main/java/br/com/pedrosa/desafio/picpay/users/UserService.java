@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    public static final String USUARIO_NAO_ENCONTRADO = "Usuario nao encontrado ";
+    public static final String USUARIO_NAO_ENCONTRADO = "Usuario nao encontrado %s";
     public static final String USUARIO_COM_SALDO_INSUFICIENTE = "Usuario com saldo insuficiente";
     public static final String LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA = "Lojista nao pode fazer transferencia";
 
@@ -28,15 +28,16 @@ public class UserService {
     public UserResponse create(UserRequest userRequest) {
         logger.info("Criando o usuario");
         var user = this.userRepository.save(userRequest.toEntity(userRequest));
-        return user.toResponse(user);
+        return User.toResponse(user);
     }
 
     public User findById(Long id) throws UserNotFoundException {
+        logger.info("Pesquisando o usuario");
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(USUARIO_NAO_ENCONTRADO + id));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USUARIO_NAO_ENCONTRADO,id)));
     }
 
-    public void validUser(User payer, BigDecimal value) throws BalanceException, TransferException {
+    public void validateUser(User payer, BigDecimal value) throws BalanceException, TransferException {
         logger.info("Validando se o usuario pode fazer a transferencia");
         if (!hasBalance(payer, value)) {
             logger.error(USUARIO_COM_SALDO_INSUFICIENTE);
@@ -49,10 +50,12 @@ public class UserService {
     }
 
     private boolean isInvalidUserType(User payer) {
+        logger.info("Verificando se o usuario é lojista");
         return payer.userType() == UserTypeEnum.SELLER.getValue();
     }
 
     private boolean hasBalance(User payer, BigDecimal value) {
+        logger.info("Verificando o saldo do usuario");
         return payer.balance().compareTo(value) >= 0;
     }
 
@@ -80,8 +83,9 @@ public class UserService {
     }
 
     public List<UserResponse> listAll() {
+        logger.info("Pesquisando os usuarios");
         return StreamSupport.stream(this.userRepository.findAll().spliterator(), false)
-                .map(user -> user.toResponse(user))
+                .map(User::toResponse)
                 .toList();
     }
 }

@@ -11,6 +11,6 @@ public class NotificationService {
 
     @TransactionalEventListener
     public void sendMessage(NotificationEvent notificationEvent){
-        logger.info(StringTemplate.STR."Email enviado para \{notificationEvent.email()} \{notificationEvent.message()}");
+        logger.info("Email enviado para {} com a mensagem {}",notificationEvent.email(), notificationEvent.message());
     }
 }
