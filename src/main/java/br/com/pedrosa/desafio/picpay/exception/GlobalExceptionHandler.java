@@ -1,82 +1,52 @@
 package br.com.pedrosa.desafio.picpay.exception;
 
 import br.com.pedrosa.desafio.picpay.authorization.AuthorizationException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.WebRequest;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     public static final String USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO = "Usuario ja cadastrado como esse email ou documento";
 
-    @ExceptionHandler
-    @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, List<FieldErrorResponse>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        return error(ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(fieldError -> new FieldErrorResponse(fieldError.getField(),fieldError.getDefaultMessage()))
-                .collect(Collectors.toList()));
-    }
-
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDetails> userNotFoundException(UserNotFoundException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    public ProblemDetail userNotFoundException(UserNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<ErrorDetails> authorizationException(AuthorizationException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ProblemDetail authorizationException(AuthorizationException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     @ExceptionHandler(TransferException.class)
-    public ResponseEntity<ErrorDetails> transferException(TransferException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ProblemDetail transferException(TransferException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     @ExceptionHandler(BalanceException.class)
-    public ResponseEntity<ErrorDetails> balanceException(BalanceException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ProblemDetail balanceException(BalanceException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-    @ExceptionHandler(value = DbActionExecutionException.class)
-    public ResponseEntity<ErrorDetails> dataIntegrityViolationException(DbActionExecutionException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO, request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    @ExceptionHandler(DbActionExecutionException.class)
+    public ProblemDetail dataIntegrityViolationException(DbActionExecutionException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO);
     }
 
-    @ExceptionHandler(value = UserTypeException.class)
-    public ResponseEntity<ErrorDetails> userTypeException(UserTypeException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex) {
+        var error = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .findFirst().orElse(null);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, error);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> globleExcpetionHandler(Exception ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private Map<String, List<FieldErrorResponse>> error(List<FieldErrorResponse> errors){
-        return Collections.singletonMap("errors", errors);
-    }
 
 }
