@@ -54,7 +54,6 @@ Content-Type: application/json
 ## Stack 
  - Java 21
  - Spring Boot 3.3
- - OpenAI
  - Modulith
  - Postgres
  - Actuator
