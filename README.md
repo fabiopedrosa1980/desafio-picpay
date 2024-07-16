@@ -50,6 +50,16 @@ Content-Type: application/json
   "payee": 2
 }
 ```
+
+## Stack 
+ - Java 21
+ - Spring Boot 3.3
+ - Modulith
+ - Postgres
+ - Actuator
+ - Docker
+ - Virtual Threads
+   
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
 
