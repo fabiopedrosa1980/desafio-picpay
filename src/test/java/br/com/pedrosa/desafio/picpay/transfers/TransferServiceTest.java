@@ -17,6 +17,8 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 
+import static br.com.pedrosa.desafio.picpay.Constants.RECEIVED_TRANSFER;
+import static br.com.pedrosa.desafio.picpay.Constants.SUCCESSFUL_TRANSFER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -52,8 +54,6 @@ public class TransferServiceTest {
     @Test
     void sendTransfer_ShouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, BalanceException {
         // Arrange
-        var SUCCESSFUL_TRANSFER = "Transferencia realizada com sucesso";
-        var RECEIVED_TRANSFER = "Transferencia recebida com sucesso";
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
         doNothing().when(userService).validateUser(payer, new BigDecimal("100.0"));

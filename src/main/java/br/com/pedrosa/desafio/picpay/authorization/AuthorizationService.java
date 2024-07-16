@@ -1,5 +1,6 @@
 package br.com.pedrosa.desafio.picpay.authorization;
 
+import br.com.pedrosa.desafio.picpay.exception.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

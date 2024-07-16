@@ -1,18 +1,23 @@
 package br.com.pedrosa.desafio.picpay.users;
 
+import br.com.pedrosa.desafio.picpay.Constants;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static br.com.pedrosa.desafio.picpay.Constants.INSUFFICIENT_BALANCE;
+import static br.com.pedrosa.desafio.picpay.Constants.SELLER_CANNOT_TRANSFER;
+import static br.com.pedrosa.desafio.picpay.Constants.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -70,7 +75,7 @@ public class UserServiceTest {
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.findById(1L));
-        assertEquals(String.format(UserService.USUARIO_NAO_ENCONTRADO, 1L), exception.getMessage());
+        assertEquals(String.format(USER_NOT_FOUND, 1L), exception.getMessage());
     }
 
     @Test
@@ -80,7 +85,7 @@ public class UserServiceTest {
 
         // Act & Assert
         BalanceException exception = assertThrows(BalanceException.class, () -> userService.validateUser(payer, transferValue));
-        assertEquals(UserService.USUARIO_COM_SALDO_INSUFICIENTE, exception.getMessage());
+        assertEquals(INSUFFICIENT_BALANCE, exception.getMessage());
     }
 
     @Test
@@ -91,7 +96,7 @@ public class UserServiceTest {
 
         // Act & Assert
         TransferException exception = assertThrows(TransferException.class, () -> userService.validateUser(seller, transferValue));
-        assertEquals(UserService.LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA, exception.getMessage());
+        assertEquals(SELLER_CANNOT_TRANSFER, exception.getMessage());
     }
 
     @Test

@@ -15,9 +15,9 @@ import java.util.stream.StreamSupport;
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    public static final String USUARIO_NAO_ENCONTRADO = "Usuario nao encontrado %s";
-    public static final String USUARIO_COM_SALDO_INSUFICIENTE = "Usuario com saldo insuficiente";
-    public static final String LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA = "Lojista nao pode fazer transferencia";
+    private static final String USER_NOT_FOUND = "Usuario nao encontrado %s";
+    private static final String INSUFFICIENT_BALANCE = "Usuario com saldo insuficiente";
+    private static final String SELLER_CANNOT_TRANSFER = "Lojista nao pode fazer transferencia";
 
     private final UserRepository userRepository;
 
@@ -34,22 +34,22 @@ public class UserService {
     public User findById(Long id) throws UserNotFoundException {
         logger.info("Pesquisando o usuario");
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USUARIO_NAO_ENCONTRADO,id)));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND,id)));
     }
 
     public void validateUser(User payer, BigDecimal value) throws BalanceException, TransferException {
         logger.info("Validando se o usuario pode fazer a transferencia");
         if (!hasBalance(payer, value)) {
-            logger.error(USUARIO_COM_SALDO_INSUFICIENTE);
-            throw new BalanceException(USUARIO_COM_SALDO_INSUFICIENTE);
+            logger.error(INSUFFICIENT_BALANCE);
+            throw new BalanceException(INSUFFICIENT_BALANCE);
         }
-        if (isInvalidUserType(payer)) {
-            logger.error(LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA);
-            throw new TransferException(LOJISTA_NAO_PODE_FAZER_TRANSFERENCIA);
+        if (isSeller(payer)) {
+            logger.error(SELLER_CANNOT_TRANSFER);
+            throw new TransferException(SELLER_CANNOT_TRANSFER);
         }
     }
 
-    private boolean isInvalidUserType(User payer) {
+    private boolean isSeller(User payer) {
         logger.info("Verificando se o usuario é lojista");
         return payer.userType() == UserTypeEnum.SELLER.getValue();
     }
@@ -61,7 +61,7 @@ public class UserService {
 
     public User updateBalance(User user, BigDecimal value) {
         logger.info("Atualizando o saldo do {}", UserTypeEnum.findById(user.userType()));
-        var balance = buildBalanceFromUser(user.balance(), value, user.userType());
+        var balance = calculateNewBalance(user.balance(), value, user.userType());
         var userWithNewBalance = getUserWithNewBalance(user, balance);
         return this.userRepository.save(userWithNewBalance);
     }
@@ -77,7 +77,8 @@ public class UserService {
                 balance);
     }
 
-    private BigDecimal buildBalanceFromUser(BigDecimal actualBalance, BigDecimal value, int type) {
+    private BigDecimal calculateNewBalance(BigDecimal actualBalance, BigDecimal value, int type) {
+        logger.info("Calculando o saldo");
         return type == UserTypeEnum.COMMON.getValue() ?
                 actualBalance.subtract(value) : actualBalance.add(value);
     }

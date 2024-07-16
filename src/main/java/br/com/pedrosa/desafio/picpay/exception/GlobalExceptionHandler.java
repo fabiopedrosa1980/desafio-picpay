@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.exception;
 
-import br.com.pedrosa.desafio.picpay.authorization.AuthorizationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    public static final String USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO = "Usuario ja cadastrado como esse email ou documento";
+    public static final String USER_ALREADY_REGISTERED_WITH_EMAIL_OR_DOCUMENT = "Usuario ja cadastrado como esse email ou documento";
 
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail userNotFoundException(UserNotFoundException ex) {
@@ -36,7 +35,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DbActionExecutionException.class)
     public ProblemDetail dataIntegrityViolationException(DbActionExecutionException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, USUARIO_JA_CADASTRADO_COMO_ESSE_EMAIL_OU_DOCUMENTO);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, USER_ALREADY_REGISTERED_WITH_EMAIL_OR_DOCUMENT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
