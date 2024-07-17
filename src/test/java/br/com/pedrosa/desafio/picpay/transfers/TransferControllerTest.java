@@ -82,7 +82,7 @@ public class TransferControllerTest {
         mockMvc.perform(post("/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transferRequest)))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value("Transferencia nao autorizada"));
 
         verify(transferService).sendTransfer(any(TransferRequest.class));
@@ -114,7 +114,7 @@ public class TransferControllerTest {
         mockMvc.perform(post("/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transferRequest)))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").value("Saldo insuficiente"));
 
         verify(transferService).sendTransfer(any(TransferRequest.class));

@@ -28,6 +28,6 @@ public enum UserTypeEnum {
         return Arrays.stream(UserTypeEnum.values())
                 .filter(type -> type.getValue() == id)
                 .findFirst().map(UserTypeEnum::getName)
-                .orElseThrow(() -> new UserTypeException("Tipo de usuario informado invalidp"));
+                .orElseThrow(() -> new UserTypeException("Tipo de usuario informado invalido, deve ser COMMON OU SELLER"));
     }
 }

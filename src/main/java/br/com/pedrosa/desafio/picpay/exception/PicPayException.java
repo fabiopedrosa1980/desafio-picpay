@@ -11,7 +11,6 @@ public class PicPayException extends RuntimeException{
     }
 
     public ProblemDetail problemDetail(){
-        var pb = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,message);
-        return pb;
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY,message);
     }
 }

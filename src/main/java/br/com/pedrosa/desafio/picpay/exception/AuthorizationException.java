@@ -1,11 +1,18 @@
 package br.com.pedrosa.desafio.picpay.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+
 public class AuthorizationException extends PicPayException {
-    public String message;
+    public final String message;
 
     public AuthorizationException(String message) {
         super(message);
+        this.message = message;
     }
 
+    public ProblemDetail problemDetail(){
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,message);
+    }
 
 }
