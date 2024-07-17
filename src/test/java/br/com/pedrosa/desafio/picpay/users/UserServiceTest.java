@@ -75,7 +75,7 @@ public class UserServiceTest {
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.findById(1L));
-        assertEquals(String.format(USER_NOT_FOUND, 1L), exception.getMessage());
+        assertEquals(String.format(USER_NOT_FOUND, 1L), exception.problemDetail().getDetail());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class UserServiceTest {
 
         // Act & Assert
         BalanceException exception = assertThrows(BalanceException.class, () -> userService.validateUser(payer, transferValue));
-        assertEquals(INSUFFICIENT_BALANCE, exception.getMessage());
+        assertEquals(INSUFFICIENT_BALANCE, exception.problemDetail().getDetail());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class UserServiceTest {
 
         // Act & Assert
         TransferException exception = assertThrows(TransferException.class, () -> userService.validateUser(seller, transferValue));
-        assertEquals(SELLER_CANNOT_TRANSFER, exception.getMessage());
+        assertEquals(SELLER_CANNOT_TRANSFER, exception.problemDetail().getDetail());
     }
 
     @Test
