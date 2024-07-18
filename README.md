@@ -23,10 +23,12 @@ Este serviço deve ser RESTFul.
 Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se não conseguir atender a todos os requisitos. Durante a entrevista vamos conversar sobre o que você conseguiu fazer e o que não conseguiu.
 
 ## Endpoint de usuarios
+- Listar Usuários
 ```
-GET/ users
+GET /users
 ```
 
+- Criar Usuário
 ```
 POST /users
 userType [COMMON, SELLER]
@@ -71,7 +73,7 @@ Content-Type: application/json
  - -DURL_DB=jdbc:postgressql://localhost/picpay-simplificado
  - -DUSER_DB=myuser
  - -DPASSWORD=secret
- - -DURL_AUTH=https://util.devi.tools/api/v2/authorize
+- -DURL_AUTH=https://util.devi.tools/api/v2/authorize
    
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
