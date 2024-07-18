@@ -12,7 +12,7 @@
 	<artifactId>desafio-picpay</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>desafio-picpay</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Desafio Picpay</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -102,13 +102,6 @@
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.springframework.ai</groupId>
-				<artifactId>spring-ai-bom</artifactId>
-				<version>${spring-ai.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.modulith</groupId>
 				<artifactId>spring-modulith-bom</artifactId>

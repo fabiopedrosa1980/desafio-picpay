@@ -25,7 +25,9 @@ Tente ser o mais aderente possível ao que foi pedido, mas não se preocupe se n
 ## Endpoint de usuarios
 ```
 GET/ users
+```
 
+```
 POST /users
 userType [COMMON, SELLER]
 Content-Type: application/json
@@ -40,6 +42,7 @@ Content-Type: application/json
 ```
 ## Endpoint de transferência
 Você pode implementar o que achar conveniente, porém vamos nos atentar somente ao fluxo de transferência entre dois usuários. A implementação deve seguir o contrato abaixo.
+
 ```
 POST /transfer
 Content-Type: application/json
@@ -50,18 +53,25 @@ Content-Type: application/json
   "payee": 2
 }
 ```
-
 ## Stack 
  - Java 21
  - Spring Boot 3.3
- - Modulith
+ - Spring Modulith
  - Postgres
  - Actuator
  - Docker
  - Virtual Threads
+
+## Ambiente Necessario
+ - Java 21
+ - Docker
+
+## Rodando o projeto
+ ### Adicione as variaveis de ambiente
+ - -DURL_DB=jdbc:postgressql://localhost/picpay-simplificado
+ - -DUSER_DB=myuser
+ - -DPASSWORD=secret
+ - -DURL_AUTH=https://util.devi.tools/api/v2/authorize
    
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
-
-
-

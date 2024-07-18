@@ -33,7 +33,7 @@ public class AuthorizationServiceTest {
         urlAuth = "http://fakeurl/auth";
         // Initialize mock responses
         successResponse = new AuthorizationResponse("success",new Data("true"));
-        failResponse = new AuthorizationResponse("success",new Data("false"));
+        failResponse = new AuthorizationResponse("fail",new Data("false"));
 
         // Inject urlAuth manually since @Value does not work in unit tests
         authorizationService = new AuthorizationService(authorizationClient);
