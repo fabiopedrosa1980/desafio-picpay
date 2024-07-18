@@ -75,3 +75,5 @@ Content-Type: application/json
    
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
+
+![Image description](/images/arquitetura.png)
