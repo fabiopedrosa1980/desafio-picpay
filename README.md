@@ -75,7 +75,7 @@ URL_DB=jdbc:postgressql://localhost/picpay-simplificado
 
 USER_DB=myuser
 
-DPASSWORD=secret
+PASSWORD=secret
 
 URL_AUTH=https://util.devi.tools/api/v2/authorize
 
