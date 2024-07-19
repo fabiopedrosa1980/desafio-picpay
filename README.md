@@ -71,13 +71,13 @@ Content-Type: application/json
 ## Rodando o projeto
  ### Adicione as variaveis de ambiente
 
--DURL_DB=jdbc:postgressql://localhost/picpay-simplificado
+URL_DB=jdbc:postgressql://localhost/picpay-simplificado
 
--DUSER_DB=myuser
+USER_DB=myuser
 
--DPASSWORD=secret
+DPASSWORD=secret
 
--DURL_AUTH=https://util.devi.tools/api/v2/authorize
+URL_AUTH=https://util.devi.tools/api/v2/authorize
 
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
