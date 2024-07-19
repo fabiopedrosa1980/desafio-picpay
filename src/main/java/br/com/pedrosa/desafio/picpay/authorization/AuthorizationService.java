@@ -20,8 +20,7 @@ public class AuthorizationService {
         this.authorizationClient = authorizationClient;
     }
 
-    @Retryable(
-            retryFor = AuthorizationException.class,
+    @Retryable(retryFor = AuthorizationException.class,
             maxAttempts = 4,
             backoff = @Backoff(delay = 300))
     public boolean authorize() {
