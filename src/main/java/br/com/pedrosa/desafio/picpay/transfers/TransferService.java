@@ -5,6 +5,7 @@ import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
+import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.slf4j.Logger;
@@ -23,13 +24,13 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
-    private final ApplicationEventPublisher eventPublisher;
+    private final NotificationService notificationService;
 
-    public TransferService(TransferRepository transferRepository, UserService userService, AuthorizationService authorizationService, ApplicationEventPublisher eventPublisher) {
+    public TransferService(TransferRepository transferRepository, UserService userService, AuthorizationService authorizationService, NotificationService notificationService) {
         this.transferRepository = transferRepository;
         this.userService = userService;
         this.authorizationService = authorizationService;
-        this.eventPublisher = eventPublisher;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -61,8 +62,8 @@ public class TransferService {
     }
 
     private void sendTransferNotifications(User payer, User payee) {
-        eventPublisher.publishEvent(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
-        eventPublisher.publishEvent(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
+        notificationService.send(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
+        notificationService.send(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
     }
 
     private TransferResponse createTransferResponse(User payer, User payee) {

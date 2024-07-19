@@ -5,6 +5,7 @@ import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
+import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 
@@ -33,7 +33,7 @@ public class TransferServiceTest {
     private AuthorizationService authorizationService;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private NotificationService notificationService;
 
     @InjectMocks
     private TransferService transferService;
@@ -69,8 +69,8 @@ public class TransferServiceTest {
         assertEquals(BigDecimal.valueOf(700), response.payee().balance());
 
         verify(transferRepository, times(1)).save(any(Transfer.class));
-        verify(eventPublisher, times(1)).publishEvent(new NotificationEvent("payer@example.com", "Transferencia realizada com sucesso"));
-        verify(eventPublisher, times(1)).publishEvent(new NotificationEvent("payee@example.com", "Transferencia recebida com sucesso"));
+        verify(notificationService, times(1)).send(new NotificationEvent("payer@example.com", "Transferencia realizada com sucesso"));
+        verify(notificationService, times(1)).send(new NotificationEvent("payee@example.com", "Transferencia recebida com sucesso"));
 
     }
 
