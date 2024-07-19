@@ -36,14 +36,17 @@ public class TransferService {
     public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
         logger.info("Iniciando a transferencia");
 
-        var payer = getUser(transferRequest.payer());
-        var payee = getUser(transferRequest.payee());
+        var payer = userService.findById(transferRequest.payer());
+        var payee = userService.findById(transferRequest.payee());
 
         userService.validateUser(payer, transferRequest.value());
         authorizeTransfer();
 
-        payer = userService.updateBalance(payer, transferRequest.value());
-        payee = userService.updateBalance(payee, transferRequest.value());
+        payer = payer.subtractBalance(transferRequest.value());
+        payee = payee.addBalance(transferRequest.value());
+
+        userService.update(payer);
+        userService.update(payee);
 
         return processTransfer(transferRequest, payer, payee);
     }
@@ -76,7 +79,4 @@ public class TransferService {
         }
     }
 
-    private User getUser(Long userId) throws UserNotFoundException {
-        return userService.findById(userId);
-    }
 }

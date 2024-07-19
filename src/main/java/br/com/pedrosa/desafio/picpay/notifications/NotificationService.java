@@ -10,7 +10,7 @@ public class NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @TransactionalEventListener
-    public void sendMessage(NotificationEvent notificationEvent){
+    public void sendMessage(NotificationEvent notificationEvent)throws Exception{
         logger.info("Email enviado para {} com a mensagem {}",notificationEvent.email(), notificationEvent.message());
     }
 }

@@ -1,6 +1,4 @@
 package br.com.pedrosa.desafio.picpay.authorization;
 
-public record AuthorizationResponse(String status, Data data) {
+public record AuthorizationResponse(String status) {
 }
-
-record Data(String authorization){}

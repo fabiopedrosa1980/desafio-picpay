@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.users;
 
-import br.com.pedrosa.desafio.picpay.Constants;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
@@ -15,9 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static br.com.pedrosa.desafio.picpay.Constants.INSUFFICIENT_BALANCE;
-import static br.com.pedrosa.desafio.picpay.Constants.SELLER_CANNOT_TRANSFER;
-import static br.com.pedrosa.desafio.picpay.Constants.USER_NOT_FOUND;
+import static br.com.pedrosa.desafio.picpay.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -113,14 +110,16 @@ public class UserServiceTest {
         // Arrange
         BigDecimal transferValue = new BigDecimal("100.00");
         User updatedPayer = new User(1L, "Payer", "123456789", "payer@example.com", "password", UserTypeEnum.COMMON.getValue(), new BigDecimal("400.00"));
+        updatedPayer = updatedPayer.subtractBalance(transferValue);
         when(userRepository.save(any(User.class))).thenReturn(updatedPayer);
 
+
         // Act
-        User userWithUpdatedBalance = userService.updateBalance(payer, transferValue.negate());
+        updatedPayer = userService.update(updatedPayer);
 
         // Assert
-        assertNotNull(userWithUpdatedBalance);
-        assertEquals(new BigDecimal("400.00"), userWithUpdatedBalance.balance());
+        assertNotNull(updatedPayer);
+        assertEquals(new BigDecimal("300.00"), updatedPayer.balance());
         verify(userRepository).save(any(User.class));
     }
 

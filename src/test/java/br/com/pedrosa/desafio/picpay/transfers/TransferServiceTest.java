@@ -17,8 +17,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 
-import static br.com.pedrosa.desafio.picpay.Constants.RECEIVED_TRANSFER;
-import static br.com.pedrosa.desafio.picpay.Constants.SUCCESSFUL_TRANSFER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -53,25 +51,27 @@ public class TransferServiceTest {
 
     @Test
     void sendTransfer_ShouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, BalanceException {
-        // Arrange
+        User payer = new User(1L, "Payer", "123456789", "payer@example.com", "password", 1, BigDecimal.valueOf(1000));
+        User payee = new User(2L, "Payee", "987654321", "payee@example.com", "password", 1, BigDecimal.valueOf(500));
+        TransferRequest request = new TransferRequest(BigDecimal.valueOf(200),1L, 2L );
+
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        doNothing().when(userService).validateUser(payer, new BigDecimal("100.0"));
+        doNothing().when(userService).validateUser(payer, BigDecimal.valueOf(200));
         when(authorizationService.authorize()).thenReturn(true);
-        when(userService.updateBalance(payer, new BigDecimal("100.0"))).thenReturn(new User(1L, "Name","12345678901","payer@example.com","12345",1, new BigDecimal(400)));
-        when(userService.updateBalance(payee, new BigDecimal("100.0"))).thenReturn(new User(2L, "Name","123456789011234","payee@example.com","12345",2, new BigDecimal(600)));
-        doNothing().when(eventPublisher).publishEvent(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
-        doNothing().when(eventPublisher).publishEvent(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
+        when(userService.update(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act
-        TransferResponse transferResponse = transferService.sendTransfer(transferRequest);
+        TransferResponse response = transferService.sendTransfer(request);
 
-        // Assert
-        assertNotNull(transferResponse);
-        assertEquals("Transferencia realizada com sucesso", transferResponse.message());
-        verify(transferRepository).save(any(Transfer.class));
-        verify(eventPublisher).publishEvent(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
-        verify(eventPublisher).publishEvent(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
+        assertNotNull(response);
+        assertEquals("Transferencia realizada com sucesso", response.message());
+        assertEquals(BigDecimal.valueOf(800), response.payer().balance());
+        assertEquals(BigDecimal.valueOf(700), response.payee().balance());
+
+        verify(transferRepository, times(1)).save(any(Transfer.class));
+        verify(eventPublisher, times(1)).publishEvent(new NotificationEvent("payer@example.com", "Transferencia realizada com sucesso"));
+        verify(eventPublisher, times(1)).publishEvent(new NotificationEvent("payee@example.com", "Transferencia recebida com sucesso"));
+
     }
 
     @Test

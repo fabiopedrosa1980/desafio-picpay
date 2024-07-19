@@ -39,48 +39,14 @@ public class UserService {
 
     public void validateUser(User payer, BigDecimal value) throws BalanceException, TransferException {
         logger.info("Validando se o usuario pode fazer a transferencia");
-        if (!hasBalance(payer, value)) {
+        if (!payer.hasBalance(value)) {
             logger.error(INSUFFICIENT_BALANCE);
             throw new BalanceException(INSUFFICIENT_BALANCE);
         }
-        if (isSeller(payer)) {
+        if (payer.isSeller()) {
             logger.error(SELLER_CANNOT_TRANSFER);
             throw new TransferException(SELLER_CANNOT_TRANSFER);
         }
-    }
-
-    private boolean isSeller(User payer) {
-        logger.info("Verificando se o usuario é lojista");
-        return payer.userType() == UserTypeEnum.SELLER.getValue();
-    }
-
-    private boolean hasBalance(User payer, BigDecimal value) {
-        logger.info("Verificando o saldo do usuario");
-        return payer.balance().compareTo(value) >= 0;
-    }
-
-    public User updateBalance(User user, BigDecimal value) {
-        logger.info("Atualizando o saldo do {}", UserTypeEnum.findById(user.userType()));
-        var balance = calculateNewBalance(user.balance(), value, user.userType());
-        var userWithNewBalance = getUserWithNewBalance(user, balance);
-        return this.userRepository.save(userWithNewBalance);
-    }
-
-    private User getUserWithNewBalance(User user, BigDecimal balance) {
-        return new User(
-                user.id(),
-                user.name(),
-                user.document(),
-                user.email(),
-                user.password(),
-                user.userType(),
-                balance);
-    }
-
-    private BigDecimal calculateNewBalance(BigDecimal actualBalance, BigDecimal value, int type) {
-        logger.info("Calculando o saldo");
-        return type == UserTypeEnum.COMMON.getValue() ?
-                actualBalance.subtract(value) : actualBalance.add(value);
     }
 
     public List<UserResponse> listAll() {
@@ -88,5 +54,9 @@ public class UserService {
         return StreamSupport.stream(this.userRepository.findAll().spliterator(), false)
                 .map(User::toResponse)
                 .toList();
+    }
+
+    public User update(User user) {
+        return this.userRepository.save(user);
     }
 }

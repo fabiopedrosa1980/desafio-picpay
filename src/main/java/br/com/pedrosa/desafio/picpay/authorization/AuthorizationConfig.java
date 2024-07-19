@@ -10,12 +10,12 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class AuthorizationConfig {
 
-    @Value("${url.auth}")
-    private String urlAuth;
+    @Value("${url.api}")
+    private String urlApi;
 
     @Bean
     public AuthorizationClient authorizationClient(){
-        RestClient restClient = RestClient.builder().baseUrl(urlAuth).build();
+        RestClient restClient = RestClient.builder().baseUrl(urlApi).build();
         RestClientAdapter adapter = RestClientAdapter.create(restClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
         return factory.createClient(AuthorizationClient.class);

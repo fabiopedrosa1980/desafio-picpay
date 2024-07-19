@@ -14,6 +14,22 @@ public record User(@Id Long id, String name, String document, String email, Stri
         this(null, name, document, email, password, userType, balance);
     }
 
+    public User addBalance(BigDecimal amount){
+        return new User(this.id, this.name, this.document, this.email, this.password, this.userType, this.balance.add(amount));
+    }
+
+    public User subtractBalance(BigDecimal amount){
+        return new User(this.id, this.name, this.document, this.email, this.password, this.userType, this.balance.subtract(amount));
+    }
+
+    public boolean isSeller() {
+        return this.userType() == UserTypeEnum.SELLER.getValue();
+    }
+
+    public boolean hasBalance(BigDecimal value) {
+        return this.balance().compareTo(value) >= 0;
+    }
+
     public static UserResponse toResponse(User user) {
         return new UserResponse(
                 user.id,

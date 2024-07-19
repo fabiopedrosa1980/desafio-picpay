@@ -7,9 +7,12 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AuthorizationService {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationService.class);
+    public static final String SUCCESS = "success";
 
     private final AuthorizationClient authorizationClient;
 
@@ -17,16 +20,17 @@ public class AuthorizationService {
         this.authorizationClient = authorizationClient;
     }
 
-    @Retryable(retryFor = AuthorizationException.class,
-            maxAttempts = 3,
+    @Retryable(
+            retryFor = AuthorizationException.class,
+            maxAttempts = 4,
             backoff = @Backoff(delay = 300))
     public boolean authorize() {
         try {
-            logger.info("Validando autorizacao da transferencia");
+            logger.info("Validando autorizacao da transferencia {}", LocalDateTime.now());
             var resp = this.authorizationClient.authorized();
-            return resp.data().authorization().equals("true");
+            return SUCCESS.equals(resp.status());
         } catch (Exception e) {
-            logger.error("Erro autorizar transferencia {}", e);
+            logger.error("Erro autorizar transferencia {}", e.getMessage());
             throw new AuthorizationException("Transferencia nao autorizada");
         }
     }
