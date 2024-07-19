@@ -79,6 +79,8 @@ PASSWORD=secret
 
 URL_AUTH=https://util.devi.tools/api/v2/authorize
 
+URL_NOTIFY=https://util.devi.tools/api/v1/notify
+
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
 
