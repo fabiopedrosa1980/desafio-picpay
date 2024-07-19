@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static br.com.pedrosa.desafio.picpay.Constants.*;
+import static br.com.pedrosa.desafio.picpay.constants.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

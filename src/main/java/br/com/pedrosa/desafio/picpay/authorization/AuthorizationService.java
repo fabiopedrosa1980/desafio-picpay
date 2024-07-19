@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class AuthorizationService {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationService.class);
     public static final String SUCCESS = "success";
+    public static final String TRANSFER_NOT_AUTHORIZED = "Transferencia nao autorizada";
 
     private final AuthorizationClient authorizationClient;
 
@@ -21,8 +22,8 @@ public class AuthorizationService {
     }
 
     @Retryable(retryFor = AuthorizationException.class,
-            maxAttempts = 4,
-            backoff = @Backoff(delay = 300))
+            maxAttempts = 6,
+            backoff = @Backoff(delay = 100))
     public boolean authorize() {
         try {
             logger.info("Validando autorizacao da transferencia {}", LocalDateTime.now());
@@ -30,7 +31,7 @@ public class AuthorizationService {
             return SUCCESS.equals(resp.status());
         } catch (Exception e) {
             logger.error("Erro autorizar transferencia {}", e.getMessage());
-            throw new AuthorizationException("Transferencia nao autorizada");
+            throw new AuthorizationException(TRANSFER_NOT_AUTHORIZED);
         }
     }
 }

@@ -4,7 +4,7 @@ import br.com.pedrosa.desafio.picpay.authorization.AuthorizationService;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
-import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
+import br.com.pedrosa.desafio.picpay.notifications.NotificationRequest;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
@@ -69,8 +69,8 @@ public class TransferServiceTest {
         assertEquals(BigDecimal.valueOf(700), response.payee().balance());
 
         verify(transferRepository, times(1)).save(any(Transfer.class));
-        verify(notificationService, times(1)).send(new NotificationEvent("payer@example.com", "Transferencia realizada com sucesso"));
-        verify(notificationService, times(1)).send(new NotificationEvent("payee@example.com", "Transferencia recebida com sucesso"));
+        verify(notificationService, times(1)).send(new NotificationRequest("payer@example.com", "Transferencia realizada com sucesso"));
+        verify(notificationService, times(1)).send(new NotificationRequest("payee@example.com", "Transferencia recebida com sucesso"));
 
     }
 

@@ -4,13 +4,12 @@ import br.com.pedrosa.desafio.picpay.authorization.AuthorizationService;
 import br.com.pedrosa.desafio.picpay.exception.BalanceException;
 import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
-import br.com.pedrosa.desafio.picpay.notifications.NotificationEvent;
+import br.com.pedrosa.desafio.picpay.notifications.NotificationRequest;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,6 @@ public class TransferService {
     private static final String SUCCESSFUL_TRANSFER = "Transferencia realizada com sucesso";
     private static final String RECEIVED_TRANSFER = "Transferencia recebida com sucesso";
     private static final String UNAUTHORIZED_TRANSFER = "Transferencia nao autorizada";
-
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -44,9 +42,8 @@ public class TransferService {
         authorizeTransfer();
 
         payer = payer.subtractBalance(transferRequest.value());
-        payee = payee.addBalance(transferRequest.value());
-
         userService.update(payer);
+        payee = payee.addBalance(transferRequest.value());
         userService.update(payee);
 
         return processTransfer(transferRequest, payer, payee);
@@ -62,8 +59,11 @@ public class TransferService {
     }
 
     private void sendTransferNotifications(User payer, User payee) {
-        notificationService.send(new NotificationEvent(payer.email(), SUCCESSFUL_TRANSFER));
-        notificationService.send(new NotificationEvent(payee.email(), RECEIVED_TRANSFER));
+        long startTime = System.currentTimeMillis();
+        notificationService.send(new NotificationRequest(payer.email(), SUCCESSFUL_TRANSFER));
+        notificationService.send(new NotificationRequest(payee.email(), RECEIVED_TRANSFER));
+        long endTime = System.currentTimeMillis();
+        logger.info("Enviou as transferencias em {} segundos",(endTime-startTime)/1000);
     }
 
     private TransferResponse createTransferResponse(User payer, User payee) {

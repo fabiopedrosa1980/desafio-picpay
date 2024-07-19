@@ -10,6 +10,7 @@ import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
 @SpringBootApplication
 @EnableRetry
+@EnableAsync
 public class DesafioPicpayApplication {
 
     public static void main(String[] args) {
