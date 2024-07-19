@@ -51,16 +51,15 @@ public class TransferService {
 
     private TransferResponse processTransfer(TransferRequest transferRequest, User payer, User payee) {
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        sendTransferNotifications(payer, payee);
+        sendTransferNotification(payer, payee);
 
         TransferResponse transferResponse = createTransferResponse(payer, payee);
         logger.info("Transferencia finalizada");
         return transferResponse;
     }
 
-    private void sendTransferNotifications(User payer, User payee) {
+    private void sendTransferNotification(User payer, User payee) {
         long startTime = System.currentTimeMillis();
-        notificationService.send(new NotificationRequest(payer.email(), SUCCESSFUL_TRANSFER));
         notificationService.send(new NotificationRequest(payee.email(), RECEIVED_TRANSFER));
         long endTime = System.currentTimeMillis();
         logger.info("Enviou as transferencias em {} segundos",(endTime-startTime)/1000);

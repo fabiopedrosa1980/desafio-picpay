@@ -1,7 +1,5 @@
 package br.com.pedrosa.desafio.picpay.notifications;
 
-import br.com.pedrosa.desafio.picpay.constants.Constants;
-import br.com.pedrosa.desafio.picpay.exception.AuthorizationException;
 import br.com.pedrosa.desafio.picpay.exception.NotificationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 

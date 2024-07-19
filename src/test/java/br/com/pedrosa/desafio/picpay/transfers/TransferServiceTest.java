@@ -69,7 +69,6 @@ public class TransferServiceTest {
         assertEquals(BigDecimal.valueOf(700), response.payee().balance());
 
         verify(transferRepository, times(1)).save(any(Transfer.class));
-        verify(notificationService, times(1)).send(new NotificationRequest("payer@example.com", "Transferencia realizada com sucesso"));
         verify(notificationService, times(1)).send(new NotificationRequest("payee@example.com", "Transferencia recebida com sucesso"));
 
     }
