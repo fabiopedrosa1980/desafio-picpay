@@ -44,7 +44,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void create_ShouldReturnCreatedStatusAndUserResponse_WhenRequestIsValid() throws Exception {
+    void shouldReturnCreatedStatusAndUserResponse_WhenRequestIsValid() throws Exception {
         // Arrange
         when(userService.create(any(UserRequest.class))).thenReturn(userResponse);
 
@@ -60,7 +60,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void listAll_ShouldReturnListOfUsers() throws Exception {
+    void shouldReturnListOfUsers() throws Exception {
         // Arrange
         List<UserResponse> users = List.of(userResponse);
         when(userService.listAll()).thenReturn(users);

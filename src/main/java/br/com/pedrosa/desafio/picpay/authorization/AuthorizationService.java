@@ -22,7 +22,7 @@ public class AuthorizationService {
     }
 
     @Retryable(retryFor = AuthorizationException.class,
-            maxAttempts = 6,
+            maxAttempts = 4,
             backoff = @Backoff(delay = 100))
     public boolean authorize() {
         try {
@@ -32,6 +32,8 @@ public class AuthorizationService {
         } catch (Exception e) {
             logger.error("Erro autorizar transferencia {}", e.getMessage());
             throw new AuthorizationException(TRANSFER_NOT_AUTHORIZED);
+        } finally {
+            logger.info("Transferencia autorizada com sucesso");
         }
     }
 }

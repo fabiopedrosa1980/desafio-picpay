@@ -47,7 +47,7 @@ public class TransferControllerTest {
     }
 
     @Test
-    void sendTransfer_ShouldReturnTransferResponse_WhenRequestIsValid() throws Exception {
+    void shouldReturnTransferResponse_WhenRequestIsValid() throws Exception {
         // Arrange
         when(transferService.sendTransfer(any(TransferRequest.class))).thenReturn(transferResponse);
 
@@ -73,7 +73,7 @@ public class TransferControllerTest {
     }
 
     @Test
-    void sendTransfer_ShouldReturnError_WhenTransferExceptionOccurs() throws Exception {
+    void shouldReturnError_WhenTransferExceptionOccurs() throws Exception {
         // Arrange
         doThrow(new TransferException("Transferencia nao autorizada"))
                 .when(transferService).sendTransfer(any(TransferRequest.class));
@@ -89,7 +89,7 @@ public class TransferControllerTest {
     }
 
     @Test
-    void sendTransfer_ShouldReturnError_WhenUserNotFoundExceptionOccurs() throws Exception {
+    void shouldReturnError_WhenUserNotFoundExceptionOccurs() throws Exception {
         // Arrange
         doThrow(new UserNotFoundException("Usuario nao encontrado"))
                 .when(transferService).sendTransfer(any(TransferRequest.class));
@@ -105,7 +105,7 @@ public class TransferControllerTest {
     }
 
     @Test
-    void sendTransfer_ShouldReturnError_WhenBalanceExceptionOccurs() throws Exception {
+    void shouldReturnError_WhenBalanceExceptionOccurs() throws Exception {
         // Arrange
         doThrow(new BalanceException("Saldo insuficiente"))
                 .when(transferService).sendTransfer(any(TransferRequest.class));

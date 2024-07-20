@@ -1,13 +1,10 @@
 package br.com.pedrosa.desafio.picpay.users;
 
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -15,8 +12,6 @@ import java.util.List;
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private static final String USER_NOT_FOUND = "Usuario nao encontrado %s";
-    private static final String INSUFFICIENT_BALANCE = "Usuario com saldo insuficiente";
-    private static final String SELLER_CANNOT_TRANSFER = "Lojista nao pode fazer transferencia";
 
     private final UserRepository userRepository;
 
@@ -36,17 +31,6 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, id)));
     }
 
-    public void validateUser(User payer, BigDecimal value) throws BalanceException, TransferException {
-        logger.info("Validando se o usuario pode fazer a transferencia");
-        if (!payer.hasBalance(value)) {
-            logger.error(INSUFFICIENT_BALANCE);
-            throw new BalanceException(INSUFFICIENT_BALANCE);
-        }
-        if (payer.isSeller()) {
-            logger.error(SELLER_CANNOT_TRANSFER);
-            throw new TransferException(SELLER_CANNOT_TRANSFER);
-        }
-    }
 
     public List<UserResponse> listAll() {
         logger.info("Pesquisando os usuarios");

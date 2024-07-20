@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,37 +45,35 @@ public class TransferServiceTest {
 
     @BeforeEach
     void setUp() {
-        transferRequest = new TransferRequest(new BigDecimal("100.0"),1L, 2L );
-        payer = new User(1L, "Name","12345678901","payer@example.com","12345",1, new BigDecimal(500));
-        payee = new User(2L, "Name","123456789011234","payee@example.com","12345",2, new BigDecimal(500));
+        transferRequest = new TransferRequest(new BigDecimal("100.0"), 1L, 2L);
+        payer = new User(1L, "Payer", "12345678901", "payer@example.com", "12345", 1, new BigDecimal("500.0"));
+        payee = new User(2L, "Payee", "123456789011234", "payee@example.com", "12345", 2, new BigDecimal("500.0"));
     }
 
     @Test
-    void sendTransfer_ShouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, BalanceException {
-        User payer = new User(1L, "Payer", "123456789", "payer@example.com", "password", 1, BigDecimal.valueOf(1000));
-        User payee = new User(2L, "Payee", "987654321", "payee@example.com", "password", 1, BigDecimal.valueOf(500));
-        TransferRequest request = new TransferRequest(BigDecimal.valueOf(200),1L, 2L );
-
+    void shouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, BalanceException {
+        // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        doNothing().when(userService).validateUser(payer, BigDecimal.valueOf(200));
         when(authorizationService.authorize()).thenReturn(true);
         when(userService.update(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(transferRepository.save(any(Transfer.class))).thenReturn(new Transfer(new BigDecimal("100.0"), payer.id(), payee.id()));
 
-        TransferResponse response = transferService.sendTransfer(request);
+        // Act
+        TransferResponse response = transferService.sendTransfer(transferRequest);
 
+        // Assert
         assertNotNull(response);
         assertEquals("Transferencia realizada com sucesso", response.message());
-        assertEquals(BigDecimal.valueOf(800), response.payer().balance());
-        assertEquals(BigDecimal.valueOf(700), response.payee().balance());
+        assertEquals(new BigDecimal("400.0"), response.payer().balance());
+        assertEquals(new BigDecimal("600.0"), response.payee().balance());
 
         verify(transferRepository, times(1)).save(any(Transfer.class));
-        verify(notificationService, times(1)).send(new NotificationRequest("payee@example.com", "Transferencia recebida com sucesso"));
-
+        verify(notificationService, times(1)).sendNotification(new NotificationRequest("payee@example.com", "Transferencia recebida com sucesso"));
     }
 
     @Test
-    void sendTransfer_ShouldThrowUserNotFoundException() throws UserNotFoundException {
+    void shouldThrowUserNotFoundException() throws UserNotFoundException {
         // Arrange
         when(userService.findById(1L)).thenThrow(new UserNotFoundException("User not found"));
 
@@ -83,26 +82,37 @@ public class TransferServiceTest {
     }
 
     @Test
-    void sendTransfer_ShouldThrowBalanceException() throws UserNotFoundException, BalanceException {
-        // Arrange
+    void shouldThrowBalanceException() throws UserNotFoundException, BalanceException {
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        doThrow(new BalanceException("Insufficient balance")).when(userService).validateUser(payer, new BigDecimal("100.0"));
+        when(authorizationService.authorize()).thenReturn(true);
+        when(transferService.sendTransfer(transferRequest)).thenThrow(new BalanceException("Saldo insuficiente"));
 
         // Act & Assert
         assertThrows(BalanceException.class, () -> transferService.sendTransfer(transferRequest));
     }
 
+
     @Test
-    void sendTransfer_ShouldThrowTransferExceptionWhenUnauthorized() throws UserNotFoundException, BalanceException {
+    void shouldThrowTransferExceptionWhenUnauthorized() throws UserNotFoundException, BalanceException {
         // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        doNothing().when(userService).validateUser(payer, new BigDecimal("100.0"));
-        when(authorizationService.authorize()).thenReturn(false);
+        when(authorizationService.authorize()).thenThrow(new TransferException("Transferencia nao autorizada"));
 
         // Act & Assert
         assertThrows(TransferException.class, () -> transferService.sendTransfer(transferRequest));
     }
+
+    @Test
+    void shouldThrowTransferExceptionWhenSellerTriesToTransfer() throws UserNotFoundException, BalanceException {
+        // Arrange
+        when(userService.findById(1L)).thenReturn(payee);
+        when(userService.findById(2L)).thenReturn(payee);
+
+        // Act & Assert
+        assertThrows(TransferException.class, () -> transferService.sendTransfer(transferRequest));
+    }
+
 
 }

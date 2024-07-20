@@ -1,7 +1,5 @@
 package br.com.pedrosa.desafio.picpay.users;
 
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
 import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static br.com.pedrosa.desafio.picpay.constants.Constants.*;
+import static br.com.pedrosa.desafio.picpay.constants.Constants.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -37,9 +35,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_ShouldCreateUserSuccessfully() {
+    void shouldCreateUserSuccessfully() {
         // Arrange
-        UserRequest userRequest = new UserRequest("Payee", "987654321", "payee@example.com", "password", UserTypeEnum.COMMON,new BigDecimal("500.00"));
+        UserRequest userRequest = new UserRequest("Payee", "987654321", "payee@example.com", "password", UserTypeEnum.COMMON, new BigDecimal("500.00"));
         when(userRepository.save(any(User.class))).thenReturn(payee);
 
         // Act
@@ -52,7 +50,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void findById_ShouldReturnUser_WhenUserExists() throws UserNotFoundException {
+    void shouldReturnUser_WhenUserExists() throws UserNotFoundException {
         // Arrange
         when(userRepository.findById(1L)).thenReturn(Optional.of(payer));
 
@@ -66,7 +64,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void findById_ShouldThrowUserNotFoundException_WhenUserDoesNotExist() {
+    void shouldThrowUserNotFoundException_WhenUserDoesNotExist() {
         // Arrange
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -75,38 +73,10 @@ public class UserServiceTest {
         assertEquals(String.format(USER_NOT_FOUND, 1L), exception.problemDetail().getDetail());
     }
 
-    @Test
-    void validateUser_ShouldThrowBalanceException_WhenInsufficientBalance() {
-        // Arrange
-        BigDecimal transferValue = new BigDecimal("600.00");
 
-        // Act & Assert
-        BalanceException exception = assertThrows(BalanceException.class, () -> userService.validateUser(payer, transferValue));
-        assertEquals(INSUFFICIENT_BALANCE, exception.problemDetail().getDetail());
-    }
 
     @Test
-    void validateUser_ShouldThrowTransferException_WhenUserIsSeller() {
-        // Arrange
-        User seller = new User(3L, "Seller", "111111111", "seller@example.com", "password", UserTypeEnum.SELLER.getValue(), new BigDecimal("1000.00"));
-        BigDecimal transferValue = new BigDecimal("100.00");
-
-        // Act & Assert
-        TransferException exception = assertThrows(TransferException.class, () -> userService.validateUser(seller, transferValue));
-        assertEquals(SELLER_CANNOT_TRANSFER, exception.problemDetail().getDetail());
-    }
-
-    @Test
-    void validateUser_ShouldPass_WhenUserIsValid() {
-        // Arrange
-        BigDecimal transferValue = new BigDecimal("100.00");
-
-        // Act & Assert
-        assertDoesNotThrow(() -> userService.validateUser(payer, transferValue));
-    }
-
-    @Test
-    void updateBalance_ShouldUpdateUserBalance() {
+    void shouldUpdateUserBalance() {
         // Arrange
         BigDecimal transferValue = new BigDecimal("100.00");
         User updatedPayer = new User(1L, "Payer", "123456789", "payer@example.com", "password", UserTypeEnum.COMMON.getValue(), new BigDecimal("400.00"));
@@ -124,7 +94,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void listAll_ShouldReturnListOfUsers() {
+    void shouldReturnListOfUsers() {
         // Arrange
         when(userRepository.findAll()).thenReturn(List.of(payer, payee));
 

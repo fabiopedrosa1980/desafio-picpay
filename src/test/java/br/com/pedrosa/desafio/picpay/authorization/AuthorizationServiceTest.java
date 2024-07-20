@@ -40,7 +40,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    void authorize_ShouldReturnTrue_WhenResponseIsSuccessful() {
+    void shouldReturnTrue_WhenResponseIsSuccessful() {
         // Arrange
         when(authorizationClient.authorized()).thenReturn(successResponse);
 
@@ -53,7 +53,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    void authorize_ShouldReturnFalse_WhenResponseIsUnsuccessful() {
+    void shouldReturnFalse_WhenResponseIsUnsuccessful() {
         // Arrange
         when(authorizationClient.authorized()).thenReturn(failResponse);
 
@@ -66,7 +66,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    void authorize_ShouldThrowAuthorizationException_WhenAuthorizationExceptionOccurs() {
+    void shouldThrowAuthorizationException_WhenAuthorizationExceptionOccurs() {
         // Arrange
         when(authorizationClient.authorized()).thenThrow(new AuthorizationException("Transferencia nao autorizada"));;
 
@@ -76,7 +76,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    void authorize_ShouldThrowAuthorizationException_WhenExceptionOccurs() {
+    void shouldThrowAuthorizationException_WhenExceptionOccurs() {
         // Arrange
         when(authorizationClient.authorized()).thenThrow(new RuntimeException("Transferencia nao autorizada"));
 

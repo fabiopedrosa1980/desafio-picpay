@@ -22,7 +22,7 @@ public class AuthorizationConfigTest {
     }
 
     @Test
-    public void testAuthorizationClient() {
+    public void should_AuthorizationClient() {
         AuthorizationClient client = authorizationConfig.authorizationClient();
         assertNotNull(client);
     }

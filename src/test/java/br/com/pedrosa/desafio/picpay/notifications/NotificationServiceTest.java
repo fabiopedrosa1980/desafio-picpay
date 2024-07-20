@@ -3,12 +3,13 @@ package br.com.pedrosa.desafio.picpay.notifications;
 import br.com.pedrosa.desafio.picpay.exception.NotificationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class NotificationServiceTest {
@@ -19,58 +20,29 @@ class NotificationServiceTest {
     @InjectMocks
     private NotificationService notificationService;
 
+    private NotificationRequest notificationRequest;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        notificationRequest = new NotificationRequest("test@example.com", "Test message");
     }
 
     @Test
-    void testSendNotificationSuccess() {
-        NotificationRequest notificationRequest = new NotificationRequest("test@example.com", "Test message");
+    void shouldSendNotificationSuccess() {
+        notificationService.sendNotification(notificationRequest);
 
-        when(notificationClient.notifyUser(notificationRequest)).thenReturn(Mono.empty());
-
-        Mono<Void> result = notificationService.sendNotification(notificationRequest);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        verify(notificationClient, times(1)).notifyUser(notificationRequest);
+        ArgumentCaptor<NotificationRequest> captor = ArgumentCaptor.forClass(NotificationRequest.class);
+        verify(notificationClient, times(1)).notifyUser(captor.capture());
+        assertEquals(notificationRequest, captor.getValue());
     }
 
     @Test
-    void testSendNotificationFailure() {
-        NotificationRequest notificationRequest = new NotificationRequest("test@example.com", "Test message");
+    void shouldSendNotificationException() {
+        doThrow(new RuntimeException("Notification failed")).when(notificationClient).notifyUser(any());
 
-        when(notificationClient.notifyUser(notificationRequest)).thenReturn(Mono.error(new RuntimeException("Client error")));
-
-        Mono<Void> result = notificationService.sendNotification(notificationRequest);
-
-        StepVerifier.create(result)
-                .expectError(NotificationException.class)
-                .verify();
-
-        verify(notificationClient, times(1)).notifyUser(notificationRequest);
-    }
-
-    @Test
-    void testSend() {
-        NotificationRequest notificationRequest = new NotificationRequest("test@example.com", "Test message");
-
-        when(notificationClient.notifyUser(notificationRequest)).thenReturn(Mono.empty());
-
-        notificationService.send(notificationRequest);
-
-        verify(notificationClient, times(1)).notifyUser(notificationRequest);
-    }
-
-    @Test
-    void testSendWithError() {
-        NotificationRequest notificationRequest = new NotificationRequest("test@example.com", "Test message");
-
-        when(notificationClient.notifyUser(notificationRequest)).thenReturn(Mono.error(new RuntimeException("Client error")));
-
-        notificationService.send(notificationRequest);
+        NotificationException exception = assertThrows(NotificationException.class, () ->
+                notificationService.sendNotification(notificationRequest));
 
         verify(notificationClient, times(1)).notifyUser(notificationRequest);
     }

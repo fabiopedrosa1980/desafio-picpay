@@ -30,7 +30,7 @@ public class UserTypeConfigurationTest {
     }
 
     @Test
-    void run_ShouldSaveUserTypes() throws Exception {
+    void shouldSaveUserTypes() throws Exception {
         // Act
         userTypeConfiguration.run();
 
