@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 
 @Service
@@ -34,7 +33,7 @@ public class UserService {
     public User findById(Long id) throws UserNotFoundException {
         logger.info("Pesquisando o usuario");
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND,id)));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, id)));
     }
 
     public void validateUser(User payer, BigDecimal value) throws BalanceException, TransferException {
@@ -51,7 +50,7 @@ public class UserService {
 
     public List<UserResponse> listAll() {
         logger.info("Pesquisando os usuarios");
-        return StreamSupport.stream(this.userRepository.findAll().spliterator(), false)
+        return this.userRepository.findAll().stream()
                 .map(User::toResponse)
                 .toList();
     }

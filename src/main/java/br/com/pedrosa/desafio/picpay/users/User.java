@@ -14,11 +14,11 @@ public record User(@Id Long id, String name, String document, String email, Stri
         this(null, name, document, email, password, userType, balance);
     }
 
-    public User addBalance(BigDecimal amount){
+    public User credit(BigDecimal amount){
         return new User(this.id, this.name, this.document, this.email, this.password, this.userType, this.balance.add(amount));
     }
 
-    public User subtractBalance(BigDecimal amount){
+    public User debit(BigDecimal amount){
         return new User(this.id, this.name, this.document, this.email, this.password, this.userType, this.balance.subtract(amount));
     }
 

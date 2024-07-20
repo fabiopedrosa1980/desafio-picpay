@@ -34,16 +34,16 @@ public class TransferService {
     @Transactional
     public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
         logger.info("Iniciando a transferencia");
-
         var payer = userService.findById(transferRequest.payer());
         var payee = userService.findById(transferRequest.payee());
 
         userService.validateUser(payer, transferRequest.value());
         authorizeTransfer();
 
-        payer = payer.subtractBalance(transferRequest.value());
+        payer = payer.debit(transferRequest.value());
         userService.update(payer);
-        payee = payee.addBalance(transferRequest.value());
+
+        payee = payee.credit(transferRequest.value());
         userService.update(payee);
 
         return processTransfer(transferRequest, payer, payee);

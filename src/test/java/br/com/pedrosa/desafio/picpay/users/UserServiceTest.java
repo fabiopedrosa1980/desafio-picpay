@@ -110,7 +110,7 @@ public class UserServiceTest {
         // Arrange
         BigDecimal transferValue = new BigDecimal("100.00");
         User updatedPayer = new User(1L, "Payer", "123456789", "payer@example.com", "password", UserTypeEnum.COMMON.getValue(), new BigDecimal("400.00"));
-        updatedPayer = updatedPayer.subtractBalance(transferValue);
+        updatedPayer = updatedPayer.debit(transferValue);
         when(userRepository.save(any(User.class))).thenReturn(updatedPayer);
 
 
