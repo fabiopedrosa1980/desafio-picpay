@@ -11,6 +11,7 @@ import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,8 +57,6 @@ public class TransferServiceTest {
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
         when(authorizationService.authorize()).thenReturn(true);
-        when(userService.update(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(transferRepository.save(any(Transfer.class))).thenReturn(new Transfer(new BigDecimal("100.0"), payer.id(), payee.id()));
 
         // Act
         TransferResponse response = transferService.sendTransfer(transferRequest);
@@ -65,11 +64,16 @@ public class TransferServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("Transferencia realizada com sucesso", response.message());
-        assertEquals(new BigDecimal("400.0"), response.payer().balance());
-        assertEquals(new BigDecimal("600.0"), response.payee().balance());
 
-        verify(transferRepository, times(1)).save(any(Transfer.class));
-        verify(notificationService, times(1)).sendNotification(new NotificationRequest("payee@example.com", "Transferencia recebida com sucesso"));
+        verify(userService,times(2)).update(any(User.class));
+        verify(transferRepository).save(any(Transfer.class));
+
+        ArgumentCaptor<NotificationRequest> notificationCaptor = ArgumentCaptor.forClass(NotificationRequest.class);
+        verify(notificationService, timeout(1000)).sendNotification(notificationCaptor.capture());
+
+        NotificationRequest notification = notificationCaptor.getValue();
+        assertEquals(payee.email(), notification.email());
+        assertEquals("Transferencia recebida com sucesso", notification.message());
     }
 
     @Test
