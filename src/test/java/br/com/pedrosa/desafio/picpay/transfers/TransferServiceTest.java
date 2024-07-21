@@ -41,7 +41,9 @@ public class TransferServiceTest {
     private TransferService transferService;
 
     private TransferRequest transferRequest;
+
     private User payer;
+
     private User payee;
 
     @BeforeEach
@@ -63,6 +65,10 @@ public class TransferServiceTest {
 
         // Assert
         assertNotNull(response);
+        assertNotNull(response.payee());
+        assertNotNull(response.payer());
+        assertEquals(response.payer().balance(),new BigDecimal("400.0"));
+        assertEquals(response.payee().balance(),new BigDecimal("600.0"));
         assertEquals("Transferencia realizada com sucesso", response.message());
 
         verify(userService,times(2)).update(any(User.class));
@@ -79,7 +85,7 @@ public class TransferServiceTest {
     @Test
     void shouldThrowUserNotFoundException() throws UserNotFoundException {
         // Arrange
-        when(userService.findById(1L)).thenThrow(new UserNotFoundException("User not found"));
+        when(userService.findById(1L)).thenThrow(new UserNotFoundException("Usuario nao encontrado"));
 
         // Act & Assert
         assertThrows(UserNotFoundException.class, () -> transferService.sendTransfer(transferRequest));
@@ -87,6 +93,7 @@ public class TransferServiceTest {
 
     @Test
     void shouldThrowBalanceException() throws UserNotFoundException, BalanceException {
+        // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
         when(authorizationService.authorize()).thenReturn(true);
@@ -102,7 +109,7 @@ public class TransferServiceTest {
         // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        when(authorizationService.authorize()).thenThrow(new TransferException("Transferencia nao autorizada"));
+        when(authorizationService.authorize()).thenReturn(false);
 
         // Act & Assert
         assertThrows(TransferException.class, () -> transferService.sendTransfer(transferRequest));
