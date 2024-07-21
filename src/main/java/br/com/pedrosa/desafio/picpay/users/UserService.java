@@ -31,7 +31,6 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, id)));
     }
 
-
     public List<UserResponse> listAll() {
         logger.info("Pesquisando os usuarios");
         return this.userRepository.findAll().stream()

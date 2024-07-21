@@ -5,7 +5,7 @@ import org.springframework.http.ProblemDetail;
 
 public class UserNotFoundException extends PicPayException {
 
-    private String message;
+    private final String message;
 
     public UserNotFoundException(String message) {
         super(message);

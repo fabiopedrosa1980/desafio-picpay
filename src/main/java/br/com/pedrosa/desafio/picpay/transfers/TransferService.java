@@ -55,7 +55,7 @@ public class TransferService {
     }
 
     private void validateTransfer(User payer, User payee, BigDecimal value) throws BalanceException, TransferException {
-        logger.info("Validando se o usuario pode fazer a transferencia");
+        logger.info("Validando se o usuario payer pode fazer a transferencia");
         if (!payer.hasBalance(value)) {
             logger.error(INSUFFICIENT_BALANCE);
             throw new BalanceException(INSUFFICIENT_BALANCE);
@@ -68,20 +68,16 @@ public class TransferService {
 
     private TransferResponse processTransfer(TransferRequest transferRequest, User payer, User payee) {
         transferRepository.save(transferRequest.toEntity(transferRequest));
-        CompletableFuture.runAsync(
-                ()-> this.notificationService.sendNotification(new NotificationRequest(payee.email(),RECEIVED_TRANSFER)));
+        var notification = new NotificationRequest(payee.email(), RECEIVED_TRANSFER);
+        CompletableFuture.runAsync(() -> this.notificationService.sendNotification(notification));
 
-        TransferResponse transferResponse = createTransferResponse(payer, payee);
+        var transferResponse = createTransferResponse(payer, payee);
         logger.info("Transferencia finalizada");
         return transferResponse;
     }
 
     private TransferResponse createTransferResponse(User payer, User payee) {
-        return new TransferResponse(
-                SUCCESSFUL_TRANSFER,
-                User.toResponse(payer),
-                User.toResponse(payee)
-        );
+        return new TransferResponse(SUCCESSFUL_TRANSFER, User.toResponse(payer), User.toResponse(payee));
     }
 
     private void authorizeTransfer() {

@@ -15,7 +15,7 @@ public class UserTypeConfiguration implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         var userTypes = List.of(new UserType(1, "COMMON"), new UserType(2, "SELLER"));
         userTypeRepository.saveAll(userTypes);
     }
