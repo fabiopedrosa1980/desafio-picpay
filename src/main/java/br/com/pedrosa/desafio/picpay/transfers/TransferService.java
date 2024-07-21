@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TransferService {
@@ -69,15 +68,10 @@ public class TransferService {
     private TransferResponse processTransfer(TransferRequest transferRequest, User payer, User payee) {
         transferRepository.save(transferRequest.toEntity(transferRequest));
         var notification = new NotificationRequest(payee.email(), RECEIVED_TRANSFER);
-        CompletableFuture.runAsync(() -> this.notificationService.sendNotification(notification));
-
-        var transferResponse = createTransferResponse(payer, payee);
+        Thread.startVirtualThread(() -> this.notificationService.sendNotification(notification));
+        var transferResponse =  new TransferResponse(SUCCESSFUL_TRANSFER, User.toResponse(payer), User.toResponse(payee));
         logger.info("Transferencia finalizada");
         return transferResponse;
-    }
-
-    private TransferResponse createTransferResponse(User payer, User payee) {
-        return new TransferResponse(SUCCESSFUL_TRANSFER, User.toResponse(payer), User.toResponse(payee));
     }
 
     private void authorizeTransfer() {
