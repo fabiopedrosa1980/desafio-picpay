@@ -1,8 +1,7 @@
 package br.com.pedrosa.desafio.picpay.transfers;
 
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
+import br.com.pedrosa.desafio.picpay.users.UserBalanceException;
+import br.com.pedrosa.desafio.picpay.users.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.users.UserResponse;
 import br.com.pedrosa.desafio.picpay.users.UserTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -107,7 +106,7 @@ public class TransferControllerTest {
     @Test
     void shouldReturnError_WhenBalanceExceptionOccurs() throws Exception {
         // Arrange
-        doThrow(new BalanceException("Saldo insuficiente"))
+        doThrow(new UserBalanceException("Saldo insuficiente"))
                 .when(transferService).sendTransfer(any(TransferRequest.class));
 
         // Act & Assert

@@ -1,4 +1,6 @@
-package br.com.pedrosa.desafio.picpay.exception;
+package br.com.pedrosa.desafio.picpay.notifications;
+
+import br.com.pedrosa.desafio.picpay.exception.PicPayException;
 
 public class NotificationException extends PicPayException {
 

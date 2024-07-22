@@ -1,14 +1,14 @@
 package br.com.pedrosa.desafio.picpay.transfers;
 
 import br.com.pedrosa.desafio.picpay.authorization.AuthorizationService;
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationRequest;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
+import br.com.pedrosa.desafio.picpay.users.UserBalanceException;
+import br.com.pedrosa.desafio.picpay.users.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,20 +40,19 @@ public class TransferServiceTest {
     private TransferService transferService;
 
     private TransferRequest transferRequest;
-
     private User payer;
-
     private User payee;
 
     @BeforeEach
     void setUp() {
-        transferRequest = new TransferRequest(new BigDecimal("100.0"), 1L, 2L);
-        payer = new User(1L, "Payer", "12345678901", "payer@example.com", "12345", 1, new BigDecimal("500.0"));
-        payee = new User(2L, "Payee", "123456789011234", "payee@example.com", "12345", 2, new BigDecimal("500.0"));
+        transferRequest = new TransferRequest(new BigDecimal("100.0"),1L, 2L );
+        payer = new User(1L, "Name","12345678901","payer@example.com","12345",1, new BigDecimal(500));
+        payee = new User(2L, "Name","123456789011234","payee@example.com","12345",2, new BigDecimal(500));
     }
 
+    @DisplayName("Deve fazer a transferencia com sucesso")
     @Test
-    void shouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, BalanceException {
+    void shouldProcessTransferSuccessfully() throws TransferException, UserNotFoundException, UserBalanceException {
         // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
@@ -83,6 +81,7 @@ public class TransferServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar usuario nao encontrado")
     void shouldThrowUserNotFoundException() throws UserNotFoundException {
         // Arrange
         when(userService.findById(1L)).thenThrow(new UserNotFoundException("Usuario nao encontrado"));
@@ -92,20 +91,20 @@ public class TransferServiceTest {
     }
 
     @Test
-    void shouldThrowBalanceException() throws UserNotFoundException, BalanceException {
+    @DisplayName("Deve retornar saldo insuficiente")
+    void shouldThrowUserBalanceException() throws UserNotFoundException, UserBalanceException {
         // Arrange
+        transferRequest = new TransferRequest(new BigDecimal("99999.0"),1L, 2L );
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
-        when(authorizationService.authorize()).thenReturn(true);
-        when(transferService.sendTransfer(transferRequest)).thenThrow(new BalanceException("Saldo insuficiente"));
 
         // Act & Assert
-        assertThrows(BalanceException.class, () -> transferService.sendTransfer(transferRequest));
+        assertThrows(UserBalanceException.class, () -> transferService.sendTransfer(transferRequest));
     }
 
-
     @Test
-    void shouldThrowTransferExceptionWhenUnauthorized() throws UserNotFoundException, BalanceException {
+    @DisplayName("Deve retornar transferencia nao autorizada")
+    void shouldThrowTransferExceptionWhenUnauthorized() throws UserNotFoundException, UserBalanceException {
         // Arrange
         when(userService.findById(1L)).thenReturn(payer);
         when(userService.findById(2L)).thenReturn(payee);
@@ -116,14 +115,14 @@ public class TransferServiceTest {
     }
 
     @Test
-    void shouldThrowTransferExceptionWhenSellerTriesToTransfer() throws UserNotFoundException, BalanceException {
+    @DisplayName("Deve retornar que o pagador e o recebedor nao podem serem iguais")
+    void shouldThrowTransferExceptionWhenPayerAndPayeeAreSame() throws UserNotFoundException, UserBalanceException {
         // Arrange
-        when(userService.findById(1L)).thenReturn(payee);
-        when(userService.findById(2L)).thenReturn(payee);
+        when(userService.findById(1L)).thenReturn(payer);
+        when(userService.findById(2L)).thenReturn(payer);
 
         // Act & Assert
         assertThrows(TransferException.class, () -> transferService.sendTransfer(transferRequest));
     }
-
 
 }

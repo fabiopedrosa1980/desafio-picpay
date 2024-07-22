@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.users;
 
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

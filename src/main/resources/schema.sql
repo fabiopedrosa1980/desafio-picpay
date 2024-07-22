@@ -1,15 +1,10 @@
-create table if not exists user_type(
-    id serial primary key,
-    name varchar not null
-);
-
 create table if not exists users(
     id serial primary key,
     name varchar not null ,
     document varchar not null UNIQUE,
     email varchar not null UNIQUE,
     password varchar not null,
-    user_type int references user_type(id),
+    user_type int ,
     balance decimal default 0
 );
 

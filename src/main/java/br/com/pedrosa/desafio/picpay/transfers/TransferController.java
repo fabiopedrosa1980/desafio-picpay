@@ -1,8 +1,7 @@
 package br.com.pedrosa.desafio.picpay.transfers;
 
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
+import br.com.pedrosa.desafio.picpay.users.UserBalanceException;
+import br.com.pedrosa.desafio.picpay.users.UserNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,7 @@ public class TransferController {
     }
 
     @PostMapping
-    public TransferResponse sendTransfer(@Valid @RequestBody TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
+    public TransferResponse sendTransfer(@Valid @RequestBody TransferRequest transferRequest) throws TransferException, UserNotFoundException, UserBalanceException {
         return this.transactionService.sendTransfer(transferRequest);
     }
 }

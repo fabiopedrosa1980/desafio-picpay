@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.notifications;
 
-import br.com.pedrosa.desafio.picpay.exception.NotificationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +38,7 @@ class NotificationServiceTest {
 
     @Test
     void shouldSendNotificationException() {
-        doThrow(new RuntimeException("Notification failed")).when(notificationClient).notifyUser(any());
+        doThrow(new RuntimeException("Erro ao notificar payee")).when(notificationClient).notifyUser(any());
 
         NotificationException exception = assertThrows(NotificationException.class, () ->
                 notificationService.sendNotification(notificationRequest));

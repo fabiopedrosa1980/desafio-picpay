@@ -1,4 +1,6 @@
-package br.com.pedrosa.desafio.picpay.exception;
+package br.com.pedrosa.desafio.picpay.transfers;
+
+import br.com.pedrosa.desafio.picpay.exception.PicPayException;
 
 public class TransferException extends PicPayException {
 

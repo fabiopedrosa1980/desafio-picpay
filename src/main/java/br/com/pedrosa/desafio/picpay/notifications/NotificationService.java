@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.notifications;
 
-import br.com.pedrosa.desafio.picpay.exception.NotificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     private static final String NOTIFICATION_ERROR = "Erro ao notificar payee {}";
-
     private final NotificationClient notificationClient;
 
     public NotificationService(NotificationClient notificationClient) {

@@ -1,5 +1,6 @@
-package br.com.pedrosa.desafio.picpay.exception;
+package br.com.pedrosa.desafio.picpay.users;
 
+import br.com.pedrosa.desafio.picpay.exception.PicPayException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 

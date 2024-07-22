@@ -1,6 +1,5 @@
 package br.com.pedrosa.desafio.picpay.users;
 
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

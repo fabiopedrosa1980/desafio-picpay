@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DbActionExecutionException.class)
-    public ProblemDetail dbActionExecutionException(DbActionExecutionException ex) {
+    public ProblemDetail dbActionExecutionException() {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, USER_ALREADY_REGISTERED_WITH_EMAIL_OR_DOCUMENT);
     }
 
@@ -33,7 +33,5 @@ public class GlobalExceptionHandler {
         pb.setProperty("invalid-params", errors);
         return pb;
     }
-
-    record ValidateError(String name, String message){}
 
 }

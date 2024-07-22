@@ -1,12 +1,11 @@
 package br.com.pedrosa.desafio.picpay.transfers;
 
 import br.com.pedrosa.desafio.picpay.authorization.AuthorizationService;
-import br.com.pedrosa.desafio.picpay.exception.BalanceException;
-import br.com.pedrosa.desafio.picpay.exception.TransferException;
-import br.com.pedrosa.desafio.picpay.exception.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationRequest;
 import br.com.pedrosa.desafio.picpay.notifications.NotificationService;
 import br.com.pedrosa.desafio.picpay.users.User;
+import br.com.pedrosa.desafio.picpay.users.UserBalanceException;
+import br.com.pedrosa.desafio.picpay.users.UserNotFoundException;
 import br.com.pedrosa.desafio.picpay.users.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ public class TransferService {
     private static final String UNAUTHORIZED_TRANSFER = "Transferencia nao autorizada";
     private static final String INSUFFICIENT_BALANCE = "Usuario com saldo insuficiente";
     private static final String SELLER_CANNOT_TRANSFER = "Lojista nao pode fazer transferencia";
+    private static final String SAME_PAYER_PAYEE = "Usuario nao pode transferir para ele mesmo";
     private final TransferRepository transferRepository;
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -36,12 +36,13 @@ public class TransferService {
     }
 
     @Transactional
-    public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, BalanceException {
+    public TransferResponse sendTransfer(TransferRequest transferRequest) throws TransferException, UserNotFoundException, UserBalanceException {
         logger.info("Iniciando a transferencia");
         var payer = userService.findById(transferRequest.payer());
         var payee = userService.findById(transferRequest.payee());
 
         validateTransfer(payer, payee, transferRequest.value());
+
         authorizeTransfer();
 
         payer = payer.debit(transferRequest.value());
@@ -53,13 +54,17 @@ public class TransferService {
         return processTransfer(transferRequest, payer, payee);
     }
 
-    private void validateTransfer(User payer, User payee, BigDecimal value) throws BalanceException, TransferException {
+    private void validateTransfer(User payer, User payee, BigDecimal value) throws UserBalanceException, TransferException {
         logger.info("Validando se o usuario payer pode fazer a transferencia");
         if (!payer.hasBalance(value)) {
             logger.error(INSUFFICIENT_BALANCE);
-            throw new BalanceException(INSUFFICIENT_BALANCE);
+            throw new UserBalanceException(INSUFFICIENT_BALANCE);
         }
-        if (payer.isSeller() || payer.equals(payee)) {
+        if (payer.equals(payee)) {
+            logger.error(SAME_PAYER_PAYEE);
+            throw new TransferException(SAME_PAYER_PAYEE);
+        }
+        if (payer.isSeller()) {
             logger.error(SELLER_CANNOT_TRANSFER);
             throw new TransferException(SELLER_CANNOT_TRANSFER);
         }
@@ -69,7 +74,7 @@ public class TransferService {
         transferRepository.save(transferRequest.toEntity(transferRequest));
         var notification = new NotificationRequest(payee.email(), RECEIVED_TRANSFER);
         Thread.startVirtualThread(() -> this.notificationService.sendNotification(notification));
-        var transferResponse =  new TransferResponse(SUCCESSFUL_TRANSFER, User.toResponse(payer), User.toResponse(payee));
+        var transferResponse = new TransferResponse(SUCCESSFUL_TRANSFER, User.toResponse(payer), User.toResponse(payee));
         logger.info("Transferencia finalizada");
         return transferResponse;
     }
