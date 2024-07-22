@@ -42,7 +42,6 @@ public class TransferService {
         var payee = userService.findById(transferRequest.payee());
 
         validateTransfer(payer, payee, transferRequest.value());
-
         authorizeTransfer();
 
         payer = payer.debit(transferRequest.value());
