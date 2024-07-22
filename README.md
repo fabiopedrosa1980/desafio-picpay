@@ -81,6 +81,9 @@ URL_AUTH=https://util.devi.tools/api/v2/authorize
 
 URL_NOTIFY=https://util.devi.tools/api/v1/notify
 
+## Teste Apachebench
+echo '{"value": 0.01, "payer": 52, "payee": 53}' | ab -n 1000 -c 8 -p /dev/stdin -T 'application/json' http://localhost:8080/transfer
+
 ## Acessando os Modulos
 - http://localhost:8080/actuator/modulith 
 

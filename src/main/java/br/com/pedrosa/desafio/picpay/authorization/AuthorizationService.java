@@ -20,7 +20,7 @@ public class AuthorizationService {
     }
 
     @Retryable(retryFor = AuthorizationException.class,
-            maxAttempts = 6,
+            maxAttempts = 10,
             backoff = @Backoff(delay = 100))
     public boolean authorize() {
         try {
